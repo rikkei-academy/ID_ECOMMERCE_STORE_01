@@ -17,7 +17,7 @@ public class User {
     private int userId;
     @JoinColumn(name = "UserName",unique = true,nullable = false)
     private String userName;
-    @JoinColumn(name = "PasswordUser")
+    @JoinColumn(name = "password")
     private String password;
     @JoinColumn(name = "FirstName")
     private String firstName;
