@@ -17,15 +17,12 @@ public class User {
     private int userId;
     @JoinColumn(name = "UserName",unique = true,nullable = false)
     private String userName;
-    @JoinColumn(name = "PasswordUser")
+    @JoinColumn(name = "Password")
     private String password;
     @JoinColumn(name = "FirstName")
     private String firstName;
     @JoinColumn(name = "LastName")
     private String lastName;
-//    @Column(name = "Created")
-//    @JsonFormat(pattern = "dd/MM/yyyy")
-//    private Date created;
     @JoinColumn(name = "Email",nullable = false,unique = true)
     private String email;
     @JoinColumn(name = "Phone")
