@@ -1,0 +1,144 @@
+create database ecommerce_store_01;
+use ecommerce_store_01;
+create table Catalog(
+                        CatalogID int primary key auto_increment,
+                        CatalogName nvarchar(50),
+                        CatalogStatus bit
+);
+create table User(
+    UserID int primary key auto_increment,
+    UserName nvarchar(100) unique ,
+    PasswordUser nvarchar(100),
+    Email nvarchar(100) unique ,
+    Phone nvarchar(50),
+    FirstName nvarchar(100),
+    LastName nvarchar(100),
+    UserStatus bit
+);
+alter table User
+add column RoleUser int ;
+create table Location(
+    LocationID int primary key auto_increment,
+    LocationName nvarchar(100),
+    LocationStatus bit
+);
+create table Product(
+    ProductID int primary key auto_increment,
+    ProductName nvarchar(100),
+    CatalogID int not null,
+    Image text,
+    Price float,
+    Delivery bit,
+    Descriptions text,
+    ProductStatus bit,
+    foreign key (CatalogID) references Catalog(CatalogID)
+);
+create table ProductLocation(
+    ProductLocationID int primary key auto_increment,
+    ProductID int,
+    LocationID int,
+    Quantity int,
+    Discount int,
+    ProductLocationStatus bit,
+    foreign key (ProductID) references Product(ProductID),
+    foreign key (LocationID) references Location(LocationID)
+);
+create table OrderProduct(
+    OrderID int primary key auto_increment,
+    Subtotal float,
+    Shipping float,
+    TotalAmount float,
+    Tax float,
+    CreateDate DATE,
+    OrderStatus int,
+    Address text,
+    Contact nvarchar(50),
+    FirstName nvarchar(100),
+    LastName nvarchar(100),
+    Country text,
+    City text,
+    State text,
+    Zipcode varchar(50),
+    Note text,
+    UserID int,
+    foreign key (UserID) references User(UserID)
+);
+create table OrderDetail(
+    OrderDetailID int primary key auto_increment,
+    Price float,
+    OrderDetailStatus int,
+    Quantity int,
+    TotalPrice float,
+    ProductID int,
+    foreign key (ProductID) references Product(ProductID)
+);
+create table Comment(
+    CommentID int primary key auto_increment,
+    Created date,
+    CommentContent text,
+    BlogID int,
+    UserID int,
+    CommentStatus bit,
+    foreign key (BlogID) references Blog(BlogID),
+    foreign key (UserID) references User(UserID)
+);
+create table Blog(
+    BlogID int primary key auto_increment,
+    BlogName text,
+    BlogContent text,
+    Created date,
+    Tag nvarchar(50),
+    BlogCatalogID int,
+    BlogStatus bit,
+    foreign key (BlogCatalogID) references BlogCatalog(BlogCatalogID)
+);
+create table BlogCatalog(
+    BlogCatalogID int primary key auto_increment,
+    BlogCatalogName text,
+    BlogCatalogStatus bit
+);
+create table Review(
+    ReviewID int primary key auto_increment,
+    UserID int,
+    ProductID int,
+    Created date,
+    foreign key (UserID) references User(UserID)
+);
+create table Image(
+    ImageID int primary key auto_increment,
+    ImageLink text,
+    ProductID int,
+    foreign key (ProductID) references Product(ProductID)
+);
+create table Star(
+StarID int primary key auto_increment,
+    ProductID int,
+    UserID int,
+    Star int,
+    foreign key (ProductID) references Product(ProductID)
+);
+create table WishList(
+    ProductID int,
+    UserID int,
+    foreign key (ProductID) references Product(ProductID),
+    foreign key (UserID) references User(UserID)
+);
+create table Voucher(
+    VoucherID int primary key auto_increment,
+    ProductID int,
+    Quantity int,
+    Discount int,
+    foreign key (ProductID) references Product(ProductID)
+);
+create table ContactUs(
+    ContactID int primary key auto_increment,
+    NameCompany nvarchar(100),
+    Email nvarchar(100),
+    Feedback text,
+    ContactStatus bit
+);
+create table AboutUs(
+    AboutID int primary key auto_increment,
+    AboutName nvarchar(100),
+    Content text
+);
