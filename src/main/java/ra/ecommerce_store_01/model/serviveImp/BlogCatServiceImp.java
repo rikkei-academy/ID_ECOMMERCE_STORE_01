@@ -38,6 +38,8 @@ public class BlogCatServiceImp implements BlogCatalogService {
                 blogResponse.setBlogContent(blog.getBlogContent());
                 blogResponse.setCreateDate(blog.getCreatedDate());
                 blogResponse.setTag(blog.getTag());
+                blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
+                blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
                 blogCatResponse.getListBlog().add(blogResponse);
             }
             list.add(blogCatResponse);
@@ -61,6 +63,8 @@ public class BlogCatServiceImp implements BlogCatalogService {
             blogResponse.setBlogContent(blog.getBlogContent());
             blogResponse.setCreateDate(blog.getCreatedDate());
             blogResponse.setTag(blog.getTag());
+            blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
+            blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
             blogCatResponse.getListBlog().add(blogResponse);
         }
         return blogCatResponse;
@@ -110,6 +114,8 @@ public class BlogCatServiceImp implements BlogCatalogService {
                 blogResponse.setBlogContent(blog.getBlogContent());
                 blogResponse.setCreateDate(blog.getCreatedDate());
                 blogResponse.setTag(blog.getTag());
+                blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
+                blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
                 blogCatResponse.getListBlog().add(blogResponse);
             }
             list.add(blogCatResponse);
@@ -140,6 +146,8 @@ public class BlogCatServiceImp implements BlogCatalogService {
                 blogResponse.setBlogContent(blog.getBlogContent());
                 blogResponse.setCreateDate(blog.getCreatedDate());
                 blogResponse.setTag(blog.getTag());
+                blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
+                blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
                 blogCatResponse.getListBlog().add(blogResponse);
             }
             list.add(blogCatResponse);
@@ -165,6 +173,8 @@ public class BlogCatServiceImp implements BlogCatalogService {
                 blogResponse.setBlogContent(blog.getBlogContent());
                 blogResponse.setCreateDate(blog.getCreatedDate());
                 blogResponse.setTag(blog.getTag());
+                blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
+                blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
                 blogCatResponse.getListBlog().add(blogResponse);
             }
             list.add(blogCatResponse);
