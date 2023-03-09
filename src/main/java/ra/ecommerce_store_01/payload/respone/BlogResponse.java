@@ -2,7 +2,9 @@ package ra.ecommerce_store_01.payload.respone;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class BlogResponse {
@@ -12,5 +14,7 @@ public class BlogResponse {
     private Date createDate;
     private String tag;
     private boolean blogStatus;
-    private BlogCatalogResponse blogCatalogResponse;
+    private int blogCatalogId;
+    private String blogCatalogName;
+    private List<CommentResponse> listComment = new ArrayList<>();
 }
