@@ -23,13 +23,23 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
+    public User findByUserId(int userId) {
+        return userRepository.findByUserId(userId);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
     public boolean existsByUserName(String userName) {
         return userRepository.existsByUserName(userName);
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        return userRepository.existsByUserName(email);
+        return userRepository.existsByEmail(email);
     }
 
     @Override
@@ -67,7 +77,9 @@ public class UserServiceImp implements UserService {
         userReponse.setLastName(user.getLastName());
         userReponse.setUserStatus(user.isUserStatus());
         return userReponse;
+
     }
+
 
     @Override
     public List<UserReponse> filterUser(boolean status) {
@@ -162,5 +174,10 @@ public class UserServiceImp implements UserService {
             list.add(userReponse);
         }
         return list;
+    }
+
+    @Override
+    public User getUserById(int id) {
+        return userRepository.findById(id).get();
     }
 }
