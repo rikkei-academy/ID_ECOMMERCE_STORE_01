@@ -18,13 +18,14 @@ public class Blog {
     private String blogName;
     @JoinColumn(name = "BlogContent")
     private String blogContent;
-    @JoinColumn(name = "Created")
+    @JoinColumn(name = "createDate")
     private Date createdDate;
     @JoinColumn(name = "Tag")
     private String tag;
     @JoinColumn(name = "BlogStatus")
     private boolean blogStatus;
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "BlogCatalogID")
     private BlogCatalog blogCatalog;
 
     @OneToMany(mappedBy = "blog")

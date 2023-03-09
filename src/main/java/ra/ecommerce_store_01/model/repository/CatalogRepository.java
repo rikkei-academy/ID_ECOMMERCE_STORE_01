@@ -8,5 +8,9 @@ import java.util.List;
 
 @Repository
 public interface CatalogRepository extends JpaRepository<Catalog,Integer> {
+
     List<Catalog> searchCatalogByCatalogNameContains(String catalogName);
+
+
+
 }

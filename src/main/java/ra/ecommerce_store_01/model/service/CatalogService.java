@@ -1,5 +1,6 @@
 package ra.ecommerce_store_01.model.service;
 
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ra.ecommerce_store_01.model.entity.Catalog;
@@ -12,4 +13,10 @@ public interface CatalogService {
     List<Catalog> findAll();
     List<Catalog> searchByName(String catalogName);
     Page<Catalog> getPaging(Pageable pageable);
+=======
+
+
+public interface CatalogService {
+
+
 }

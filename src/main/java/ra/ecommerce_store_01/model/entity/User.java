@@ -34,7 +34,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Star> listStar = new ArrayList<>();
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "wishlist",joinColumns = @JoinColumn(name = "userId"),
+    @JoinTable(name = "wishlist",joinColumns = @JoinColumn(name = "UserId"),
             inverseJoinColumns = @JoinColumn(name = "productId"))
     private Set<Product> wishList = new HashSet<>();
     @OneToMany(mappedBy = "user")

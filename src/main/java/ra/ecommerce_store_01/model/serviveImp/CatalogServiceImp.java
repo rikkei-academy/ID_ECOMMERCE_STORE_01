@@ -1,12 +1,16 @@
 package ra.ecommerce_store_01.model.serviveImp;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+
 import org.springframework.stereotype.Service;
 import ra.ecommerce_store_01.model.entity.Catalog;
 import ra.ecommerce_store_01.model.repository.CatalogRepository;
 import ra.ecommerce_store_01.model.service.CatalogService;
+
 
 import java.util.List;
 
@@ -38,4 +42,5 @@ public class CatalogServiceImp implements CatalogService {
     public Page<Catalog> getPaging(Pageable pageable) {
         return catalogRepository.findAll(pageable);
     }
+
 }
