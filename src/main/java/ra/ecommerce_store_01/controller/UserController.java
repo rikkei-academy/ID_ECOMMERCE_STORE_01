@@ -3,7 +3,9 @@ package ra.ecommerce_store_01.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,7 @@ import ra.ecommerce_store_01.model.service.RoleService;
 import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.request.LoginRequest;
 import ra.ecommerce_store_01.payload.request.SignupRequest;
+import ra.ecommerce_store_01.payload.request.UserUpdate;
 import ra.ecommerce_store_01.payload.respone.JwtResponse;
 import ra.ecommerce_store_01.payload.respone.MessageResponse;
 import ra.ecommerce_store_01.payload.respone.UserReponse;
@@ -41,6 +44,8 @@ public class UserController {
     private RoleService roleService;
     @Autowired
     private PasswordEncoder encoder;
+    private Set<String> strRoles;
+
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
         if (userService.existsByUserName(signupRequest.getUserName())) {
@@ -136,5 +141,52 @@ public class UserController {
         Pageable pageable = PageRequest.of(page*size,size);
         Map<String, Object> list = userService.pagination(pageable);
         return ResponseEntity.ok(list);
+    }
+    @GetMapping("/getById")
+    public ResponseEntity<?> getById(@RequestParam int userId) {
+        return ResponseEntity.ok(userService.findById(userId));
+    }
+    @PutMapping("/updateUser")
+    public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate) {
+        User user = new User();
+        CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (customUserDetail.getUserId() == userUpdate.getUserId()) {
+            user.setUserId(userUpdate.getUserId());
+            user.setUserName(userUpdate.getUserName());
+            user.setFirstName(userUpdate.getFirstName());
+            user.setPassword(encoder.encode(userUpdate.getPassword()));
+            user.setEmail(userUpdate.getEmail());
+            user.setPhone(userUpdate.getPhone());
+            user.setUserStatus(userUpdate.isUserStatus());
+            User users1 = (User) userService.getUserById(customUserDetail.getUserId());
+            user.setListRoles(users1.getListRoles());
+        } else if (customUserDetail.getAuthorities().size() > userUpdate.getListRoles().size()) {
+            Set<String> strRoles = userUpdate.getListRoles();
+            Set<Roles> listRoles = new HashSet<>();
+            if (strRoles == null) {
+                Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                listRoles.add(userRole);
+            } else {
+                strRoles.forEach(role -> {
+                    switch (role) {
+                        case "admin":
+                            Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
+                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                            listRoles.add(adminRole);
+                        case "user":
+                            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER)
+                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                            listRoles.add(userRole);
+                    }
+                });
+            }
+            user.setListRoles(listRoles);
+            user = (User) userService.findByUserName(userUpdate.getUserName());
+            user.setUserStatus(userUpdate.isUserStatus());
+        } else {
+            return new ResponseEntity<>(new MessageResponse("Can not update User"), HttpStatus.FORBIDDEN);
+        }
+        userService.saveOrUpdate(user);
+        return ResponseEntity.ok(new MessageResponse("User update successfully"));
     }
 }
