@@ -14,8 +14,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.jwt.JwtTokenProvider;
 import ra.ecommerce_store_01.model.entity.ERole;
+import ra.ecommerce_store_01.model.entity.PasswordResetToken;
 import ra.ecommerce_store_01.model.entity.Roles;
 import ra.ecommerce_store_01.model.entity.User;
+import ra.ecommerce_store_01.model.sendEmail.ProvideSendEmail;
+import ra.ecommerce_store_01.model.service.ForgotPassService;
 import ra.ecommerce_store_01.model.service.RoleService;
 import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.request.LoginRequest;
@@ -27,6 +30,7 @@ import ra.ecommerce_store_01.payload.respone.UserReponse;
 import ra.ecommerce_store_01.security.CustomUserDetails;
 
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,6 +38,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/user")
 public class UserController {
+    @Autowired
+    private ProvideSendEmail provideSendEmail;
+    @Autowired
+    private ForgotPassService forgotPassService;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
@@ -100,6 +108,47 @@ public class UserController {
                 .map(item->item.getAuthority()).collect(Collectors.toList());
         return ResponseEntity.ok(new JwtResponse(jwt,customUserDetail.getUsername(),customUserDetail.getEmail(),
                 customUserDetail.getPhone(),listRoles));
+    }
+
+    @GetMapping("/forgotPassword")
+    public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail, HttpServletRequest request) {
+        System.out.println(userEmail);
+        if (userService.existsByEmail(userEmail)) {
+            User users = userService.findByEmail(userEmail);
+            String token = UUID.randomUUID().toString();
+            PasswordResetToken myToken = new PasswordResetToken();
+            myToken.setToken(token);
+            String mess = "token is valid for 5 minutes.\n" + "Your token: " + token;
+            myToken.setUsers(users);
+            Date now = new Date();
+            myToken.setStartDate(now);
+            forgotPassService.saveOrUpdate(myToken);
+            provideSendEmail.sendSimpleMessage(users.getEmail(),
+                    "Reset your password", mess);
+            return ResponseEntity.ok("Email sent! Please check your email");
+        } else {
+            return new ResponseEntity<>(new MessageResponse("Email is not already"), HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
+    @PostMapping("/creatNewPass")
+    public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(userDetails.getUserId());
+        long date1 = passwordResetToken.getStartDate().getTime() + 1800000;
+        long date2 = new Date().getTime();
+        if (date2 > date1) {
+            return new ResponseEntity<>(new MessageResponse("Expired Token "), HttpStatus.EXPECTATION_FAILED);
+        } else {
+            if (passwordResetToken.getToken().equals(token)) {
+                User user = userService.findByUserId(userDetails.getUserId());
+                user.setPassword(encoder.encode(newPassword));
+                userService.saveOrUpdate(user);
+                return new ResponseEntity<>(new MessageResponse("update password successfully "), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
+            }
+        }
     }
     @GetMapping("findAll")
     public ResponseEntity<?> findAll(){

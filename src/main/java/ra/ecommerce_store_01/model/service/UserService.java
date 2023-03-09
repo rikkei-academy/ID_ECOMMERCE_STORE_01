@@ -11,6 +11,8 @@ import java.util.Map;
 
 public interface UserService {
     User findByUserName(String userName);
+    User findByUserId(int userId);
+    User findByEmail(String email);
     boolean existsByUserName(String userName);
     boolean existsByEmail(String email);
     User saveOrUpdate(User user);
