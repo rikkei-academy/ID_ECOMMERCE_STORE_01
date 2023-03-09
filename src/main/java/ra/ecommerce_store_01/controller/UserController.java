@@ -9,28 +9,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.jwt.JwtTokenProvider;
-import ra.ecommerce_store_01.model.entity.ERole;
-import ra.ecommerce_store_01.model.entity.Roles;
-import ra.ecommerce_store_01.model.entity.User;
 import ra.ecommerce_store_01.model.service.RoleService;
 import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.request.LoginRequest;
-import ra.ecommerce_store_01.payload.request.SignupRequest;
+
 import ra.ecommerce_store_01.payload.respone.JwtResponse;
-import ra.ecommerce_store_01.payload.respone.MessageResponse;
+
 import ra.ecommerce_store_01.security.CustomUserDetails;
 
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/user")
 public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -44,6 +38,7 @@ public class UserController {
     private PasswordEncoder encoder;
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){
+        System.out.println("vhdgjhvdsjvdjsv");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUserName(),loginRequest.getPassword())
         );
@@ -57,5 +52,12 @@ public class UserController {
         return ResponseEntity.ok(new JwtResponse(jwt,customUserDetail.getUsername(),customUserDetail.getEmail(),
                 customUserDetail.getPhone(),listRoles));
     }
+    @GetMapping("/logOut")
+    public ResponseEntity<?> logOut(HttpServletRequest request){
+        String authorizationHeader = request.getHeader("Authorization");
 
+        // Clear the authentication from server-side (in this case, Spring Security)
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok("You have been logged out.");
+    }
 }
