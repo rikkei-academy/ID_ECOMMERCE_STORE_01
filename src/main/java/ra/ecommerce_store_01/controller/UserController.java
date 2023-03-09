@@ -52,11 +52,11 @@ public class UserController {
         return ResponseEntity.ok(new JwtResponse(jwt,customUserDetail.getUsername(),customUserDetail.getEmail(),
                 customUserDetail.getPhone(),listRoles));
     }
-//    @GetMapping("findAll")
-//    public ResponseEntity<?> findAll(){
-//        List<UserReponse> list = userService.findAll();
-//        return ResponseEntity.ok(list);
-//    }
+    @GetMapping("findAll")
+    public ResponseEntity<?> findAll(){
+        List<UserReponse> list = userService.findAll();
+        return ResponseEntity.ok(list);
+    }
 
     @GetMapping("softByName")
     public ResponseEntity<?> softByName(@RequestParam("direction")String direction,
