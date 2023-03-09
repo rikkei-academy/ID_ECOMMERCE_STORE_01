@@ -23,9 +23,6 @@ public class User {
     private String firstName;
     @JoinColumn(name = "LastName")
     private String lastName;
-//    @Column(name = "Created")
-//    @JsonFormat(pattern = "dd/MM/yyyy")
-//    private Date created;
     @JoinColumn(name = "Email",nullable = false,unique = true)
     private String email;
     @JoinColumn(name = "Phone")

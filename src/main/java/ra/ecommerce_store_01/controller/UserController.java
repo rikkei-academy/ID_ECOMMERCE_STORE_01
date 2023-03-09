@@ -11,10 +11,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.jwt.JwtTokenProvider;
+import ra.ecommerce_store_01.model.entity.ERole;
+import ra.ecommerce_store_01.model.entity.Roles;
+import ra.ecommerce_store_01.model.entity.User;
 import ra.ecommerce_store_01.model.service.RoleService;
 import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.request.LoginRequest;
+import ra.ecommerce_store_01.payload.request.SignupRequest;
 import ra.ecommerce_store_01.payload.respone.JwtResponse;
+import ra.ecommerce_store_01.payload.respone.MessageResponse;
 import ra.ecommerce_store_01.payload.respone.UserReponse;
 import ra.ecommerce_store_01.security.CustomUserDetails;
 
@@ -22,9 +27,9 @@ import ra.ecommerce_store_01.security.CustomUserDetails;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
-@RequestMapping("/api/v1/auth/user")
+@RequestMapping("/api/v1/user")
 public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -36,7 +41,46 @@ public class UserController {
     private RoleService roleService;
     @Autowired
     private PasswordEncoder encoder;
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
+        if (userService.existsByUserName(signupRequest.getUserName())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Usermame is already"));
+        }
+        if (userService.existsByEmail(signupRequest.getEmail())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already"));
+        }
+        User user = new User();
+        user.setUserName(signupRequest.getUserName());
+        user.setPassword(encoder.encode(signupRequest.getPassword()));
+        user.setEmail(signupRequest.getEmail());
+        user.setPhone(signupRequest.getPhone());
+        user.setUserStatus(true);
+        Set<String> strRoles = signupRequest.getListRoles();
+        Set<Roles> listRoles = new HashSet<>();
+        System.out.println(strRoles.toString());
+        if (strRoles==null){
+            //User quyen mac dinh
+            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(()->new RuntimeException("Error: Role is not found"));
+            listRoles.add(userRole);
+        }else {
+            strRoles.forEach(role->{
 
+                switch (role){
+                    case "admin":
+                        Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
+                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
+                        listRoles.add(adminRole);
+                    case "user":
+                        Roles userRole = roleService.findByRoleName(ERole.ROLE_USER)
+                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
+                        listRoles.add(userRole);
+                }
+            });
+        }
+        user.setListRoles(listRoles);
+        userService.saveOrUpdate(user);
+        return ResponseEntity.ok(new MessageResponse("User registered successfully"));
+    }
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){
         Authentication authentication = authenticationManager.authenticate(
