@@ -57,7 +57,7 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
         if (userService.existsByUserName(signupRequest.getUserName())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Usermame is already"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already"));
         }
         if (userService.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already"));
@@ -66,6 +66,8 @@ public class UserController {
         user.setUserName(signupRequest.getUserName());
         user.setPassword(encoder.encode(signupRequest.getPassword()));
         user.setEmail(signupRequest.getEmail());
+        user.setFirstName(signupRequest.getFirstName());
+        user.setLastName(signupRequest.getLastName());
         user.setPhone(signupRequest.getPhone());
         user.setUserStatus(true);
         Set<String> strRoles = signupRequest.getListRoles();
