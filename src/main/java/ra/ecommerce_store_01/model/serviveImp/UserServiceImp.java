@@ -57,7 +57,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public UserReponse findById(int id) {
-        User user = new User();
+        User user = userRepository.findById(id).get();
         UserReponse userReponse = new UserReponse();
         userReponse.setUserId(user.getUserId());
         userReponse.setUserName(user.getUserName());
