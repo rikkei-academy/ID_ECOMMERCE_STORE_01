@@ -42,56 +42,6 @@ public class UserController {
     private RoleService roleService;
     @Autowired
     private PasswordEncoder encoder;
-//    @PostMapping("/signup")
-//    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
-//        if (userService.existsByUserName(signupRequest.getUserName())) {
-//            return ResponseEntity.badRequest().body(new MessageResponse("Error: Usermame is already"));
-//        }
-//        if (userService.existsByEmail(signupRequest.getEmail())) {
-//            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already"));
-//        }
-//        User user = new User();
-//        user.setUserName(signupRequest.getUserName());
-//        user.setPassword(encoder.encode(signupRequest.getPassword()));
-//        user.setEmail(signupRequest.getEmail());
-//        user.setPhone(signupRequest.getPhone());
-//        user.setUserStatus(true);
-//        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-//        Date dateNow = new Date();
-////        String strNow = sdf.format(dateNow);
-////        try {
-////            user.setCreated(sdf.parse(strNow));
-////        }catch (Exception ex){
-////            ex.printStackTrace();
-////        }
-//        Set<String> strRoles = signupRequest.getListRoles();
-//        Set<Roles> listRoles = new HashSet<>();
-//        if (strRoles==null){
-//            //User quyen mac dinh
-//            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(()->new RuntimeException("Error: Role is not found"));
-//            listRoles.add(userRole);
-//        }else {
-//            strRoles.forEach(role->{
-//                switch (role){
-//                    case "admin":
-//                        Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-//                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
-//                        listRoles.add(adminRole);
-////                    case "moderator":
-////                        Roles modRole = roleService.findByRoleName(ERole.ROLE_MODERATOR)
-////                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
-////                        listRoles.add(modRole);
-//                    case "user":
-//                        Roles userRole = roleService.findByRoleName(ERole.ROLE_USER)
-//                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
-//                        listRoles.add(userRole);
-//                }
-//            });
-//        }
-//        user.setListRoles(listRoles);
-//        userService.saveOrUpdate(user);
-//        return ResponseEntity.ok(new MessageResponse("User registered successfully"));
-//    }
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){
         Authentication authentication = authenticationManager.authenticate(
@@ -107,4 +57,5 @@ public class UserController {
         return ResponseEntity.ok(new JwtResponse(jwt,customUserDetail.getUsername(),customUserDetail.getEmail(),
                 customUserDetail.getPhone(),listRoles));
     }
+
 }
