@@ -21,4 +21,5 @@ public interface UserService {
     Map<String,Object> pagination(Pageable pageable);
     boolean blockUser(int id);
     List<UserReponse> searchByName(String name);
+    User findByEmail(String email);
 }
