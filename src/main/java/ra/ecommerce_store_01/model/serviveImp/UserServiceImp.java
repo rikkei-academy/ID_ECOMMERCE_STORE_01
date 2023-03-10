@@ -61,7 +61,6 @@ public class UserServiceImp implements UserService {
             userReponse.setUserStatus(user.isUserStatus());
             list.add(userReponse);
         }
-
         return list;
     }
 
@@ -175,9 +174,9 @@ public class UserServiceImp implements UserService {
         }
         return list;
     }
-
     @Override
     public User getUserById(int id) {
         return userRepository.findById(id).get();
+
     }
 }
