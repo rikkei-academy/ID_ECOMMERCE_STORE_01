@@ -19,3 +19,4 @@ public interface CatalogService {
     Page<Catalog> getPaging(Pageable pageable);
 
 }
+

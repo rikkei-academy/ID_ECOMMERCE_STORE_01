@@ -1,5 +1,6 @@
 package ra.ecommerce_store_01.model.service;
 
+import ra.ecommerce_store_01.model.entity.Blog;
 import ra.ecommerce_store_01.payload.request.BlogRequest;
 import ra.ecommerce_store_01.payload.respone.BlogResponse;
 
@@ -18,5 +19,6 @@ public interface BlogService {
     Map<String, Object> softByNameAndCreated(String directerName, String directerCreated, int size, int page);
     List<BlogResponse> findByStatus(boolean status);
     List<BlogResponse> findByCatalogId(int iD);
+    Blog getById(int blogId);
 
 }
