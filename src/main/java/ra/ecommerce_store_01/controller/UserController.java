@@ -107,7 +107,7 @@ public class UserController {
     }
 
     @GetMapping("/forgotPassword")
-    public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail, HttpServletRequest request) {
+    public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail) {
         System.out.println(userEmail);
         if (userService.existsByEmail(userEmail)) {
             User users = userService.findByEmail(userEmail);
