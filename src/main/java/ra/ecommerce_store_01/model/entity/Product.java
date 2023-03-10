@@ -44,5 +44,4 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "brand_brandId")
     private Brand brand;
-
 }

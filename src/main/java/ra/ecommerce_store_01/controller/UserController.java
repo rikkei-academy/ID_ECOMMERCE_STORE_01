@@ -5,14 +5,25 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.jwt.JwtTokenProvider;
 import ra.ecommerce_store_01.model.entity.ERole;
+
+import ra.ecommerce_store_01.model.entity.Roles;
+import ra.ecommerce_store_01.model.entity.User;
+import ra.ecommerce_store_01.model.service.RoleService;
+import ra.ecommerce_store_01.model.service.UserService;
+import ra.ecommerce_store_01.payload.request.LoginRequest;
+import ra.ecommerce_store_01.payload.request.ResetPasswordRequest;
+import ra.ecommerce_store_01.payload.request.SignupRequest;
+
 import ra.ecommerce_store_01.model.entity.PasswordResetToken;
 import ra.ecommerce_store_01.model.entity.Roles;
 import ra.ecommerce_store_01.model.entity.User;
@@ -22,6 +33,8 @@ import ra.ecommerce_store_01.model.service.RoleService;
 import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.request.LoginRequest;
 import ra.ecommerce_store_01.payload.request.SignupRequest;
+import ra.ecommerce_store_01.payload.request.UserUpdate;
+
 import ra.ecommerce_store_01.payload.respone.JwtResponse;
 import ra.ecommerce_store_01.payload.respone.MessageResponse;
 import ra.ecommerce_store_01.payload.respone.UserReponse;
@@ -54,7 +67,9 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
         if (userService.existsByUserName(signupRequest.getUserName())) {
+
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Usermame is already"));
+
         }
         if (userService.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already"));
@@ -63,12 +78,19 @@ public class UserController {
         user.setUserName(signupRequest.getUserName());
         user.setPassword(encoder.encode(signupRequest.getPassword()));
         user.setEmail(signupRequest.getEmail());
+
+
+        user.setFirstName(signupRequest.getFirstName());
+        user.setLastName(signupRequest.getLastName());
+
         user.setPhone(signupRequest.getPhone());
         user.setUserStatus(true);
         Set<String> strRoles = signupRequest.getListRoles();
         Set<Roles> listRoles = new HashSet<>();
         System.out.println(strRoles.toString());
-        if (strRoles == null) {
+
+
+        if (strRoles==null){
             //User quyen mac dinh
             Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
             listRoles.add(userRole);
@@ -82,7 +104,7 @@ public class UserController {
                         listRoles.add(adminRole);
                     case "user":
                         Roles userRole = roleService.findByRoleName(ERole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
                         listRoles.add(userRole);
                 }
             });
@@ -91,6 +113,27 @@ public class UserController {
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(new MessageResponse("User registered successfully"));
     }
+
+
+
+    @PostMapping("resetPassword")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userService.findByUserName(userDetails.getUsername());
+        boolean check = encoder.matches(resetPasswordRequest.getOldPassWord(), userDetails.getPassword());
+        if (check) {
+            if (resetPasswordRequest.getNewPassWord().equals(resetPasswordRequest.getConfirmNewPassWord())) {
+                user.setPassword(encoder.encode(resetPasswordRequest.getNewPassWord()));
+                userService.saveOrUpdate(user);
+                return ResponseEntity.ok(new MessageResponse("Reset password successfully"));
+            } else {
+                return ResponseEntity.badRequest().body(new MessageResponse("Mật khẩu mới không trùng khớp, vui lòng thử lại!"));
+            }
+        } else {
+            return ResponseEntity.badRequest().body(new MessageResponse("Mật khẩu cũ không đúng, vui lòng thử lại!"));
+        }
+    }
+
 
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
@@ -107,6 +150,7 @@ public class UserController {
         return ResponseEntity.ok(new JwtResponse(jwt, customUserDetail.getUsername(), customUserDetail.getEmail(),
                 customUserDetail.getPhone(), listRoles));
     }
+
 
     @GetMapping("/forgotPassword")
     public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail) {
@@ -173,6 +217,8 @@ public class UserController {
         return ResponseEntity.ok(list);
     }
 
+
+
     @PutMapping("blockUser/{userId}")
     public ResponseEntity<?> blockUser(@PathVariable("userId") int userId) {
         boolean check = userService.blockUser(userId);
@@ -195,5 +241,22 @@ public class UserController {
         Pageable pageable = PageRequest.of(page * size, size);
         Map<String, Object> list = userService.pagination(pageable);
         return ResponseEntity.ok(list);
+    }
+    @GetMapping("/getById")
+    public ResponseEntity<?> getById(@RequestParam int userId) {
+        return ResponseEntity.ok(userService.findById(userId));
+    }
+
+    @PatchMapping("/updateUser")
+    public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate,@RequestParam int userId) {
+        User user = userService.findByUserId(userId);
+//        CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            user.setUserName(userUpdate.getUserName());
+            user.setFirstName(userUpdate.getFirstName());
+            user.setLastName(userUpdate.getLastName());
+            user.setEmail(userUpdate.getEmail());
+            user.setPhone(userUpdate.getPhone());
+        userService.saveOrUpdate(user);
+        return ResponseEntity.ok(user);
     }
 }
