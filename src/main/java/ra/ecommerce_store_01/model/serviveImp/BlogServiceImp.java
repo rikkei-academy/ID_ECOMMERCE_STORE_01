@@ -337,4 +337,9 @@ public class BlogServiceImp implements BlogService {
         }
         return list;
     }
+
+    @Override
+    public Blog getById(int blogId) {
+        return blogRepository.findById(blogId).get();
+    }
 }

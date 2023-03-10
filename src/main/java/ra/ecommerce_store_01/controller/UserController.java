@@ -197,19 +197,15 @@ public class UserController {
     public ResponseEntity<?> getById(@RequestParam int userId) {
         return ResponseEntity.ok(userService.findById(userId));
     }
-    @PutMapping("/updateUser/{userId}")
+    @PatchMapping("/updateUser")
     public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate,@RequestParam int userId) {
         User user = userService.findByUserId(userId);
-        CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (customUserDetail.getUserId() == userId) {
+//        CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             user.setUserName(userUpdate.getUserName());
             user.setFirstName(userUpdate.getFirstName());
             user.setLastName(userUpdate.getLastName());
             user.setEmail(userUpdate.getEmail());
             user.setPhone(userUpdate.getPhone());
-        } else {
-            return new ResponseEntity<>(new MessageResponse("Can not update User"), HttpStatus.FORBIDDEN);
-        }
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(new MessageResponse("User update successfully"));
     }

@@ -61,7 +61,6 @@ public class UserServiceImp implements UserService {
             userReponse.setUserStatus(user.isUserStatus());
             list.add(userReponse);
         }
-
         return list;
     }
 
