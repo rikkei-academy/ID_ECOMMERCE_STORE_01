@@ -13,7 +13,6 @@ public class SignupRequest {
     private String phone;
     private String firstName;
     private String lastName;
-    private Date created;
     private boolean userStatus;
     private Set<String> listRoles;
 }
