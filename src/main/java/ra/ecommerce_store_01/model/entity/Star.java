@@ -21,6 +21,6 @@ public class Star {
     private Product product;
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore
-    @JoinColumn(name = "UserID")
+    @JoinColumn(name = "UserId")
     private User user;
 }

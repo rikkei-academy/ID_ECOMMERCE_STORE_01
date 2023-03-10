@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.jwt.JwtTokenProvider;
 import ra.ecommerce_store_01.model.entity.ERole;
+
 import ra.ecommerce_store_01.model.entity.Roles;
 import ra.ecommerce_store_01.model.entity.User;
 import ra.ecommerce_store_01.model.service.RoleService;
@@ -21,6 +23,18 @@ import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.request.LoginRequest;
 import ra.ecommerce_store_01.payload.request.ResetPasswordRequest;
 import ra.ecommerce_store_01.payload.request.SignupRequest;
+
+import ra.ecommerce_store_01.model.entity.PasswordResetToken;
+import ra.ecommerce_store_01.model.entity.Roles;
+import ra.ecommerce_store_01.model.entity.User;
+import ra.ecommerce_store_01.model.sendEmail.ProvideSendEmail;
+import ra.ecommerce_store_01.model.service.ForgotPassService;
+import ra.ecommerce_store_01.model.service.RoleService;
+import ra.ecommerce_store_01.model.service.UserService;
+import ra.ecommerce_store_01.payload.request.LoginRequest;
+import ra.ecommerce_store_01.payload.request.SignupRequest;
+import ra.ecommerce_store_01.payload.request.UserUpdate;
+
 import ra.ecommerce_store_01.payload.respone.JwtResponse;
 import ra.ecommerce_store_01.payload.respone.MessageResponse;
 import ra.ecommerce_store_01.payload.respone.UserReponse;
@@ -36,6 +50,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/user")
 public class UserController {
     @Autowired
+    private ProvideSendEmail provideSendEmail;
+    @Autowired
+    private ForgotPassService forgotPassService;
+    @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
     private JwtTokenProvider tokenProvider;
@@ -45,11 +63,14 @@ public class UserController {
     private RoleService roleService;
     @Autowired
     private PasswordEncoder encoder;
+    private Set<String> strRoles;
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
         if (userService.existsByUserName(signupRequest.getUserName())) {
+
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Usermame is already"));
+
         }
         if (userService.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already"));
@@ -58,26 +79,33 @@ public class UserController {
         user.setUserName(signupRequest.getUserName());
         user.setPassword(encoder.encode(signupRequest.getPassword()));
         user.setEmail(signupRequest.getEmail());
+
+
+        user.setFirstName(signupRequest.getFirstName());
+        user.setLastName(signupRequest.getLastName());
+
         user.setPhone(signupRequest.getPhone());
         user.setUserStatus(true);
         Set<String> strRoles = signupRequest.getListRoles();
         Set<Roles> listRoles = new HashSet<>();
         System.out.println(strRoles.toString());
-        if (strRoles == null) {
-            //User quyen mac dinh
-            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-            listRoles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
 
-                switch (role) {
+        if (strRoles==null){
+            //User quyen mac dinh
+            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(()->new RuntimeException("Error: Role is not found"));
+            listRoles.add(userRole);
+        }else {
+            strRoles.forEach(role->{
+
+                switch (role){
                     case "admin":
                         Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
                         listRoles.add(adminRole);
                     case "user":
                         Roles userRole = roleService.findByRoleName(ERole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
+
                         listRoles.add(userRole);
                 }
             });
@@ -86,6 +114,7 @@ public class UserController {
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(new MessageResponse("User registered successfully"));
     }
+
 
     @PostMapping("resetPassword")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
@@ -117,6 +146,48 @@ public class UserController {
                 .map(item -> item.getAuthority()).collect(Collectors.toList());
         return ResponseEntity.ok(new JwtResponse(jwt, customUserDetail.getUsername(), customUserDetail.getEmail(),
                 customUserDetail.getPhone(), listRoles));
+    }
+
+
+    @GetMapping("/forgotPassword")
+    public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail, HttpServletRequest request) {
+        System.out.println(userEmail);
+        if (userService.existsByEmail(userEmail)) {
+            User users = userService.findByEmail(userEmail);
+            String token = UUID.randomUUID().toString();
+            PasswordResetToken myToken = new PasswordResetToken();
+            myToken.setToken(token);
+            String mess = "token is valid for 5 minutes.\n" + "Your token: " + token;
+            myToken.setUsers(users);
+            Date now = new Date();
+            myToken.setStartDate(now);
+            forgotPassService.saveOrUpdate(myToken);
+            provideSendEmail.sendSimpleMessage(users.getEmail(),
+                    "Reset your password", mess);
+            return ResponseEntity.ok("Email sent! Please check your email");
+        } else {
+            return new ResponseEntity<>(new MessageResponse("Email is not already"), HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
+    @PostMapping("/creatNewPass")
+    public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(userDetails.getUserId());
+        long date1 = passwordResetToken.getStartDate().getTime() + 1800000;
+        long date2 = new Date().getTime();
+        if (date2 > date1) {
+            return new ResponseEntity<>(new MessageResponse("Expired Token "), HttpStatus.EXPECTATION_FAILED);
+        } else {
+            if (passwordResetToken.getToken().equals(token)) {
+                User user = userService.findByUserId(userDetails.getUserId());
+                user.setPassword(encoder.encode(newPassword));
+                userService.saveOrUpdate(user);
+                return new ResponseEntity<>(new MessageResponse("update password successfully "), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
+            }
+        }
     }
 
     @GetMapping("findAll")
@@ -161,5 +232,52 @@ public class UserController {
         Pageable pageable = PageRequest.of(page * size, size);
         Map<String, Object> list = userService.pagination(pageable);
         return ResponseEntity.ok(list);
+    }
+    @GetMapping("/getById")
+    public ResponseEntity<?> getById(@RequestParam int userId) {
+        return ResponseEntity.ok(userService.findById(userId));
+    }
+    @PutMapping("/updateUser")
+    public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate) {
+        User user = new User();
+        CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (customUserDetail.getUserId() == userUpdate.getUserId()) {
+            user.setUserId(userUpdate.getUserId());
+            user.setUserName(userUpdate.getUserName());
+            user.setFirstName(userUpdate.getFirstName());
+            user.setPassword(encoder.encode(userUpdate.getPassword()));
+            user.setEmail(userUpdate.getEmail());
+            user.setPhone(userUpdate.getPhone());
+            user.setUserStatus(userUpdate.isUserStatus());
+            User users1 = (User) userService.getUserById(customUserDetail.getUserId());
+            user.setListRoles(users1.getListRoles());
+        } else if (customUserDetail.getAuthorities().size() > userUpdate.getListRoles().size()) {
+            Set<String> strRoles = userUpdate.getListRoles();
+            Set<Roles> listRoles = new HashSet<>();
+            if (strRoles == null) {
+                Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                listRoles.add(userRole);
+            } else {
+                strRoles.forEach(role -> {
+                    switch (role) {
+                        case "admin":
+                            Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
+                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                            listRoles.add(adminRole);
+                        case "user":
+                            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER)
+                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                            listRoles.add(userRole);
+                    }
+                });
+            }
+            user.setListRoles(listRoles);
+            user = (User) userService.findByUserName(userUpdate.getUserName());
+            user.setUserStatus(userUpdate.isUserStatus());
+        } else {
+            return new ResponseEntity<>(new MessageResponse("Can not update User"), HttpStatus.FORBIDDEN);
+        }
+        userService.saveOrUpdate(user);
+        return ResponseEntity.ok(new MessageResponse("User update successfully"));
     }
 }
