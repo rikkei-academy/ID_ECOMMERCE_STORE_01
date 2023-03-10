@@ -54,7 +54,7 @@ public class BlogServiceImp implements BlogService {
         }
         Map<String,Object> listResponseBlog = new HashMap<>();
         listResponseBlog.put("listBlog",list);
-        listResponseBlog.put("totalPage",listBlog.getSize());
+        listResponseBlog.put("total",listBlog.getSize());
         listResponseBlog.put("totalItems",listBlog.getTotalElements());
         listResponseBlog.put("totalPage",listBlog.getTotalPages());
         return listResponseBlog;
@@ -197,7 +197,7 @@ public class BlogServiceImp implements BlogService {
         }
         Map<String,Object> listResponseBlog = new HashMap<>();
         listResponseBlog.put("listBlog",list);
-        listResponseBlog.put("totalPage",listBlog.getSize());
+        listResponseBlog.put("total",listBlog.getSize());
         listResponseBlog.put("totalItems",listBlog.getTotalElements());
         listResponseBlog.put("totalPage",listBlog.getTotalPages());
         return listResponseBlog;
@@ -235,7 +235,7 @@ public class BlogServiceImp implements BlogService {
         }
         Map<String,Object> listResponseBlog = new HashMap<>();
         listResponseBlog.put("listBlog",list);
-        listResponseBlog.put("totalPage",listBlog.getSize());
+        listResponseBlog.put("total",listBlog.getSize());
         listResponseBlog.put("totalItems",listBlog.getTotalElements());
         listResponseBlog.put("totalPage",listBlog.getTotalPages());
         return listResponseBlog;
@@ -280,7 +280,7 @@ public class BlogServiceImp implements BlogService {
         }
         Map<String,Object> listResponseBlog = new HashMap<>();
         listResponseBlog.put("listBlog",list);
-        listResponseBlog.put("totalPage",listBlog.getSize());
+        listResponseBlog.put("total",listBlog.getSize());
         listResponseBlog.put("totalItems",listBlog.getTotalElements());
         listResponseBlog.put("totalPage",listBlog.getTotalPages());
         return listResponseBlog;

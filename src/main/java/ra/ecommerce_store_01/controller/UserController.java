@@ -212,6 +212,8 @@ public class UserController {
         return ResponseEntity.ok(list);
     }
 
+
+
     @PutMapping("blockUser/{userId}")
     public ResponseEntity<?> blockUser(@PathVariable("userId") int userId) {
         boolean check = userService.blockUser(userId);
@@ -239,6 +241,7 @@ public class UserController {
     public ResponseEntity<?> getById(@RequestParam int userId) {
         return ResponseEntity.ok(userService.findById(userId));
     }
+
     @PatchMapping("/updateUser")
     public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate,@RequestParam int userId) {
         User user = userService.findByUserId(userId);
@@ -249,6 +252,6 @@ public class UserController {
             user.setEmail(userUpdate.getEmail());
             user.setPhone(userUpdate.getPhone());
         userService.saveOrUpdate(user);
-        return ResponseEntity.ok(new MessageResponse("User update successfully"));
+        return ResponseEntity.ok(user);
     }
 }
