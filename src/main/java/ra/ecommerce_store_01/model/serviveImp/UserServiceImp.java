@@ -177,10 +177,6 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
-
     public User getUserById(int id) {
         return userRepository.findById(id).get();
 
