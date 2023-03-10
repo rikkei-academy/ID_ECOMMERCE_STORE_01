@@ -63,7 +63,6 @@ public class UserController {
     private RoleService roleService;
     @Autowired
     private PasswordEncoder encoder;
-    private Set<String> strRoles;
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
@@ -90,22 +89,22 @@ public class UserController {
         Set<Roles> listRoles = new HashSet<>();
         System.out.println(strRoles.toString());
 
+
         if (strRoles==null){
             //User quyen mac dinh
-            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(()->new RuntimeException("Error: Role is not found"));
+            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
             listRoles.add(userRole);
-        }else {
-            strRoles.forEach(role->{
+        } else {
+            strRoles.forEach(role -> {
 
-                switch (role){
+                switch (role) {
                     case "admin":
                         Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
                         listRoles.add(adminRole);
                     case "user":
                         Roles userRole = roleService.findByRoleName(ERole.ROLE_USER)
                                 .orElseThrow(()->new RuntimeException("Error: Role is not found"));
-
                         listRoles.add(userRole);
                 }
             });
@@ -114,6 +113,7 @@ public class UserController {
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(new MessageResponse("User registered successfully"));
     }
+
 
 
     @PostMapping("resetPassword")
@@ -133,6 +133,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(new MessageResponse("Mật khẩu cũ không đúng, vui lòng thử lại!"));
         }
     }
+
 
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
@@ -173,21 +174,25 @@ public class UserController {
     }
 
     @PostMapping("/creatNewPass")
-    public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(userDetails.getUserId());
-        long date1 = passwordResetToken.getStartDate().getTime() + 1800000;
-        long date2 = new Date().getTime();
-        if (date2 > date1) {
-            return new ResponseEntity<>(new MessageResponse("Expired Token "), HttpStatus.EXPECTATION_FAILED);
+    public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("userName") String userName, @RequestParam("newPassword") String newPassword) {
+        User user = userService.findByUserName(userName);
+        if (user == null) {
+            return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
         } else {
-            if (passwordResetToken.getToken().equals(token)) {
-                User user = userService.findByUserId(userDetails.getUserId());
-                user.setPassword(encoder.encode(newPassword));
-                userService.saveOrUpdate(user);
-                return new ResponseEntity<>(new MessageResponse("update password successfully "), HttpStatus.OK);
+            PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(user.getUserId());
+            long date1 = passwordResetToken.getStartDate().getTime() + 1800000;
+            long date2 = new Date().getTime();
+            if (date2 > date1) {
+                return new ResponseEntity<>(new MessageResponse("Expired Token "), HttpStatus.EXPECTATION_FAILED);
             } else {
-                return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
+                if (passwordResetToken.getToken().equals(token)) {
+                    User user1 = userService.findByUserId(user.getUserId());
+                    user.setPassword(encoder.encode(newPassword));
+                    userService.saveOrUpdate(user1);
+                    return new ResponseEntity<>(new MessageResponse("update password successfully "), HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
+                }
             }
         }
     }
