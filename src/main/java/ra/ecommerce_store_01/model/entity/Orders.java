@@ -46,7 +46,7 @@ public class Orders {
     @JoinColumn(name = "Note")
     private String node;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "UserID")
+    @JoinColumn(name = "UserId")
     private User user;
     @OneToMany(mappedBy = "orders")
     private List<OrderDetail> listOrderDetail = new ArrayList<>();

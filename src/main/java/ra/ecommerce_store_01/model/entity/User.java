@@ -21,9 +21,6 @@ public class User {
     private String firstName;
     @JoinColumn(name = "LastName")
     private String lastName;
-//    @Column(name = "Created")
-//    @JsonFormat(pattern = "dd/MM/yyyy")
-//    private Date created;
     @JoinColumn(name = "Email",nullable = false,unique = true)
     private String email;
     @JoinColumn(name = "Phone")
@@ -37,7 +34,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Star> listStar = new ArrayList<>();
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "wishlist",joinColumns = @JoinColumn(name = "userId"),
+    @JoinTable(name = "wishlist",joinColumns = @JoinColumn(name = "UserId"),
             inverseJoinColumns = @JoinColumn(name = "productId"))
     private Set<Product> wishList = new HashSet<>();
     @OneToMany(mappedBy = "user")
