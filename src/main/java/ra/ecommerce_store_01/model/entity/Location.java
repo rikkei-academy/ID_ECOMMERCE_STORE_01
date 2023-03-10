@@ -18,6 +18,6 @@ public class Location {
     private String locationName;
     @JoinColumn(name = "LocationStatus")
     private boolean locationStatus;
-    @OneToMany(mappedBy = "location")
-    private List<ProductLocation> productLocations = new ArrayList<>();
+//    @OneToMany(mappedBy = "location",fetch = FetchType.EAGER)
+//    private List<ProductLocation> productLocations = new ArrayList<>();
 }
