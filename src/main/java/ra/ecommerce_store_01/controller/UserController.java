@@ -119,10 +119,12 @@ public class UserController {
     @PostMapping("resetPassword")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userService.findByUserName(userDetails.getUsername());
         boolean check = encoder.matches(resetPasswordRequest.getOldPassWord(), userDetails.getPassword());
         if (check) {
             if (resetPasswordRequest.getNewPassWord().equals(resetPasswordRequest.getConfirmNewPassWord())) {
-                userDetails.setPassword(encoder.encode(resetPasswordRequest.getNewPassWord()));
+                user.setPassword(encoder.encode(resetPasswordRequest.getNewPassWord()));
+                userService.saveOrUpdate(user);
                 return ResponseEntity.ok(new MessageResponse("Reset password successfully"));
             } else {
                 return ResponseEntity.badRequest().body(new MessageResponse("Mật khẩu mới không trùng khớp, vui lòng thử lại!"));
