@@ -171,6 +171,8 @@ public class UserController {
         return ResponseEntity.ok(list);
     }
 
+
+
     @PutMapping("blockUser/{userId}")
     public ResponseEntity<?> blockUser(@PathVariable("userId") int userId){
         boolean check = userService.blockUser(userId);
@@ -199,45 +201,14 @@ public class UserController {
     }
     @PutMapping("/updateUser")
     public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate) {
-        User user = new User();
+
         CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (customUserDetail.getUserId() == userUpdate.getUserId()) {
-            user.setUserId(userUpdate.getUserId());
-            user.setUserName(userUpdate.getUserName());
-            user.setFirstName(userUpdate.getFirstName());
-            user.setPassword(encoder.encode(userUpdate.getPassword()));
-            user.setEmail(userUpdate.getEmail());
-            user.setPhone(userUpdate.getPhone());
-            user.setUserStatus(userUpdate.isUserStatus());
-            User users1 = (User) userService.getUserById(customUserDetail.getUserId());
-            user.setListRoles(users1.getListRoles());
-        } else if (customUserDetail.getAuthorities().size() > userUpdate.getListRoles().size()) {
-            Set<String> strRoles = userUpdate.getListRoles();
-            Set<Roles> listRoles = new HashSet<>();
-            if (strRoles == null) {
-                Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                listRoles.add(userRole);
-            } else {
-                strRoles.forEach(role -> {
-                    switch (role) {
-                        case "admin":
-                            Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                            listRoles.add(adminRole);
-                        case "user":
-                            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER)
-                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                            listRoles.add(userRole);
-                    }
-                });
-            }
-            user.setListRoles(listRoles);
-            user = (User) userService.findByUserName(userUpdate.getUserName());
-            user.setUserStatus(userUpdate.isUserStatus());
-        } else {
-            return new ResponseEntity<>(new MessageResponse("Can not update User"), HttpStatus.FORBIDDEN);
-        }
+        User user = userService.findByUserId(customUserDetail.getUserId());
+        user.setEmail(userUpdate.getEmail());
+        user.setFirstName(userUpdate.getFirstName());
+        user.setLastName(userUpdate.getLastName());
+        user.setPhone(userUpdate.getPhone());
         userService.saveOrUpdate(user);
-        return ResponseEntity.ok(new MessageResponse("User update successfully"));
+        return ResponseEntity.ok(user);
     }
 }

@@ -13,10 +13,5 @@ public interface CatalogService {
     List<Catalog> findAll();
     List<Catalog> searchByName(String catalogName);
     Page<Catalog> getPaging(Pageable pageable);
-=======
-
-
-public interface CatalogService {
-
 
 }
