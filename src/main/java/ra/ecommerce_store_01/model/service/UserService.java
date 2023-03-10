@@ -24,8 +24,6 @@ public interface UserService {
     boolean blockUser(int id);
     List<UserReponse> searchByName(String name);
 
-    User findByEmail(String email);
-
     User getUserById(int id);
 
 }

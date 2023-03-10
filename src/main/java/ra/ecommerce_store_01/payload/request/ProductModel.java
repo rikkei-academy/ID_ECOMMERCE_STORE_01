@@ -2,6 +2,7 @@ package ra.ecommerce_store_01.payload.request;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -15,5 +16,5 @@ public class ProductModel {
     private boolean productStatus;
     private int catalogId;
     private int brandId;
-    private List<String> listImg;
+    private List<String> listImg = new ArrayList<>();
 }
