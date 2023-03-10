@@ -15,10 +15,10 @@ public class ProductServiceImp implements ProductService {
     private ProductRepository productRepository;
 
 
-//    @Override
-//    public Page<Product> findByName( String name,Pageable pageable) {
-//        return productRepository.findByProductNameContaining(name,pageable);
-//    }
+    @Override
+    public Page<Product> findByName(Pageable pageable, String name) {
+        return productRepository.findByProductNameContaining(name,pageable);
+    }
 
     @Override
     public Product saveOrUpdate(Product product) {

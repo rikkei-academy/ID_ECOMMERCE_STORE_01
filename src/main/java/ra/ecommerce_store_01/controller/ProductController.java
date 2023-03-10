@@ -1,4 +1,5 @@
 package ra.ecommerce_store_01.controller;
+
 import lombok.AllArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -29,14 +30,17 @@ import java.util.Map;
 public class ProductController {
     private CatalogService catalogService;
     private ProductService productService;
+
     @GetMapping
-    public List<Product> getAllProduct(){
+    public List<Product> getAllProduct() {
         return productService.findAll();
     }
+
     @DeleteMapping("/{productId}")
-    public void deleteProduct(@RequestParam int productId){
-       productService.delete(productId);
+    public void deleteProduct(@RequestParam int productId) {
+        productService.delete(productId);
     }
+
     @GetMapping("/getPaggingAndSortByName")
     public ResponseEntity<Map<String, Object>> getPaggingAndSortByName(
             @RequestParam(defaultValue = "0") int page,
@@ -57,29 +61,39 @@ public class ProductController {
         data.put("totalPages", pageProduct.getTotalPages());
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
+
     @PostMapping("/creatNew")
 
     public ResponseEntity<?> creatNew(@RequestBody ProductModel model) {
-       Product product = new Product();
-       product.setProductId(model.getProductId());
-       product.setProductName(model.getProductName());
-       product.setPrice(model.getPrice());
-       product.setImageLink(model.getImageLink());
-       product.setDelivery(model.isDelivery());
-       product.setDescription(model.getDescription());
-       product.setProductStatus(true);
+        Product product = new Product();
+        product.setProductId(model.getProductId());
+        product.setProductName(model.getProductName());
+        product.setPrice(model.getPrice());
+        product.setImageLink(model.getImageLink());
+        product.setDelivery(model.isDelivery());
+        product.setDescription(model.getDescription());
+        product.setProductStatus(true);
         Catalog catalog = catalogService.findById(model.getCatalogId());
         product.setCatalog(catalog);
         return ResponseEntity.ok("Creat new product successfully");
     }
-//    @GetMapping("/searchByName")
-//    public List<Product> searchProductByName(@RequestParam String productName){
-//        return productService.findByName(productName);
-//    }
-    @GetMapping("/getByProductId")
-    public ResponseEntity<?> getByProductId(int productId){
-        Product pr=  productService.findById(productId);
-        return ResponseEntity.ok(pr);
+
+    @GetMapping("/searchByName")
+    public ResponseEntity<Map<String, Object>> searchProductByName(@RequestParam String productName, @RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "10 ") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> pageProduct = productService.findByName(pageable,productName);
+        Map<String, Object> data = new HashMap<>();
+        data.put("products", pageProduct.getContent());
+        data.put("total", pageProduct.getSize());
+        data.put("totalItems", pageProduct.getTotalElements());
+        data.put("totalPages", pageProduct.getTotalPages());
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
+    @GetMapping("/getByProductId")
+    public ResponseEntity<?> getByProductId(int productId) {
+        Product pr = productService.findById(productId);
+        return ResponseEntity.ok(pr);
+    }
 }
