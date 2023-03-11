@@ -5,17 +5,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.jwt.JwtTokenProvider;
 import ra.ecommerce_store_01.model.entity.ERole;
-
 import ra.ecommerce_store_01.model.entity.Roles;
 import ra.ecommerce_store_01.model.entity.User;
 import ra.ecommerce_store_01.model.service.RoleService;
@@ -23,25 +20,14 @@ import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.request.LoginRequest;
 import ra.ecommerce_store_01.payload.request.ResetPasswordRequest;
 import ra.ecommerce_store_01.payload.request.SignupRequest;
-
 import ra.ecommerce_store_01.model.entity.PasswordResetToken;
-import ra.ecommerce_store_01.model.entity.Roles;
-import ra.ecommerce_store_01.model.entity.User;
 import ra.ecommerce_store_01.model.sendEmail.ProvideSendEmail;
 import ra.ecommerce_store_01.model.service.ForgotPassService;
-import ra.ecommerce_store_01.model.service.RoleService;
-import ra.ecommerce_store_01.model.service.UserService;
-import ra.ecommerce_store_01.payload.request.LoginRequest;
-import ra.ecommerce_store_01.payload.request.SignupRequest;
 import ra.ecommerce_store_01.payload.request.UserUpdate;
-
 import ra.ecommerce_store_01.payload.respone.JwtResponse;
 import ra.ecommerce_store_01.payload.respone.MessageResponse;
 import ra.ecommerce_store_01.payload.respone.UserReponse;
 import ra.ecommerce_store_01.security.CustomUserDetails;
-
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -192,7 +178,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("findAll")
+    @GetMapping("/findAll")
     public ResponseEntity<?> findAll() {
         List<UserReponse> list = userService.findAll();
         return ResponseEntity.ok(list);
