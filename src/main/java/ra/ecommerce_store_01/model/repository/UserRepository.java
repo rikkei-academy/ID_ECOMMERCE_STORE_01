@@ -30,5 +30,4 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     int totalPage(@Param("size") int size);
 
     List<User> searchByFirstNameContaining(String name);
-    User findByEmail(String email);
 }
