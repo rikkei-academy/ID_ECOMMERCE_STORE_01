@@ -5,17 +5,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.jwt.JwtTokenProvider;
 import ra.ecommerce_store_01.model.entity.ERole;
-
 import ra.ecommerce_store_01.model.entity.Roles;
 import ra.ecommerce_store_01.model.entity.User;
 import ra.ecommerce_store_01.model.service.RoleService;
@@ -23,25 +20,14 @@ import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.request.LoginRequest;
 import ra.ecommerce_store_01.payload.request.ResetPasswordRequest;
 import ra.ecommerce_store_01.payload.request.SignupRequest;
-
 import ra.ecommerce_store_01.model.entity.PasswordResetToken;
-import ra.ecommerce_store_01.model.entity.Roles;
-import ra.ecommerce_store_01.model.entity.User;
 import ra.ecommerce_store_01.model.sendEmail.ProvideSendEmail;
 import ra.ecommerce_store_01.model.service.ForgotPassService;
-import ra.ecommerce_store_01.model.service.RoleService;
-import ra.ecommerce_store_01.model.service.UserService;
-import ra.ecommerce_store_01.payload.request.LoginRequest;
-import ra.ecommerce_store_01.payload.request.SignupRequest;
 import ra.ecommerce_store_01.payload.request.UserUpdate;
-
 import ra.ecommerce_store_01.payload.respone.JwtResponse;
 import ra.ecommerce_store_01.payload.respone.MessageResponse;
 import ra.ecommerce_store_01.payload.respone.UserReponse;
 import ra.ecommerce_store_01.security.CustomUserDetails;
-
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,7 +49,6 @@ public class UserController {
     private RoleService roleService;
     @Autowired
     private PasswordEncoder encoder;
-    private Set<String> strRoles;
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
@@ -90,22 +75,22 @@ public class UserController {
         Set<Roles> listRoles = new HashSet<>();
         System.out.println(strRoles.toString());
 
+
         if (strRoles==null){
             //User quyen mac dinh
-            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(()->new RuntimeException("Error: Role is not found"));
+            Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
             listRoles.add(userRole);
-        }else {
-            strRoles.forEach(role->{
+        } else {
+            strRoles.forEach(role -> {
 
-                switch (role){
+                switch (role) {
                     case "admin":
                         Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
                         listRoles.add(adminRole);
                     case "user":
                         Roles userRole = roleService.findByRoleName(ERole.ROLE_USER)
                                 .orElseThrow(()->new RuntimeException("Error: Role is not found"));
-
                         listRoles.add(userRole);
                 }
             });
@@ -114,6 +99,7 @@ public class UserController {
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(new MessageResponse("User registered successfully"));
     }
+
 
 
     @PostMapping("resetPassword")
@@ -133,6 +119,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(new MessageResponse("Mật khẩu cũ không đúng, vui lòng thử lại!"));
         }
     }
+
 
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
@@ -173,26 +160,30 @@ public class UserController {
     }
 
     @PostMapping("/creatNewPass")
-    public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(userDetails.getUserId());
-        long date1 = passwordResetToken.getStartDate().getTime() + 1800000;
-        long date2 = new Date().getTime();
-        if (date2 > date1) {
-            return new ResponseEntity<>(new MessageResponse("Expired Token "), HttpStatus.EXPECTATION_FAILED);
+    public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("userName") String userName, @RequestParam("newPassword") String newPassword) {
+        User user = userService.findByUserName(userName);
+        if (user == null) {
+            return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
         } else {
-            if (passwordResetToken.getToken().equals(token)) {
-                User user = userService.findByUserId(userDetails.getUserId());
-                user.setPassword(encoder.encode(newPassword));
-                userService.saveOrUpdate(user);
-                return new ResponseEntity<>(new MessageResponse("update password successfully "), HttpStatus.OK);
+            PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(user.getUserId());
+            long date1 = passwordResetToken.getStartDate().getTime() + 1800000;
+            long date2 = new Date().getTime();
+            if (date2 > date1) {
+                return new ResponseEntity<>(new MessageResponse("Expired Token "), HttpStatus.EXPECTATION_FAILED);
             } else {
-                return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
+                if (passwordResetToken.getToken().equals(token)) {
+                    User user1 = userService.findByUserId(user.getUserId());
+                    user.setPassword(encoder.encode(newPassword));
+                    userService.saveOrUpdate(user1);
+                    return new ResponseEntity<>(new MessageResponse("update password successfully "), HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
+                }
             }
         }
     }
 
-    @GetMapping("findAll")
+    @GetMapping("/findAll")
     public ResponseEntity<?> findAll() {
         List<UserReponse> list = userService.findAll();
         return ResponseEntity.ok(list);
@@ -211,6 +202,8 @@ public class UserController {
         List<UserReponse> list = userService.filterUser(status);
         return ResponseEntity.ok(list);
     }
+
+
 
     @PutMapping("blockUser/{userId}")
     public ResponseEntity<?> blockUser(@PathVariable("userId") int userId) {
@@ -239,6 +232,7 @@ public class UserController {
     public ResponseEntity<?> getById(@RequestParam int userId) {
         return ResponseEntity.ok(userService.findById(userId));
     }
+
     @PatchMapping("/updateUser")
     public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate,@RequestParam int userId) {
         User user = userService.findByUserId(userId);
@@ -249,6 +243,6 @@ public class UserController {
             user.setEmail(userUpdate.getEmail());
             user.setPhone(userUpdate.getPhone());
         userService.saveOrUpdate(user);
-        return ResponseEntity.ok(new MessageResponse("User update successfully"));
+        return ResponseEntity.ok(user);
     }
 }

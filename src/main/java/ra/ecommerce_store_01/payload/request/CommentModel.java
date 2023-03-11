@@ -4,7 +4,6 @@ import lombok.Data;
 import java.util.Date;
 @Data
 public class CommentModel {
-    private int commentId;
     private Date createdDate;
     private String comment;
     private boolean commentStatus;
