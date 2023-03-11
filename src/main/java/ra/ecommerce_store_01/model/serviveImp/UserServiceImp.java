@@ -174,9 +174,11 @@ public class UserServiceImp implements UserService {
         }
         return list;
     }
-
     @Override
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
     public User getUserById(int id) {
         return userRepository.findById(id).get();
 
