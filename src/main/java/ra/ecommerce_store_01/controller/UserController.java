@@ -163,7 +163,7 @@ public class UserController {
     public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("userName") String userName, @RequestParam("newPassword") String newPassword) {
         User user = userService.findByUserName(userName);
         if (user == null) {
-            return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(new MessageResponse("token is fail"), HttpStatus.NO_CONTENT);
         } else {
             PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(user.getUserId());
             long date1 = passwordResetToken.getStartDate().getTime() + 1800000;
