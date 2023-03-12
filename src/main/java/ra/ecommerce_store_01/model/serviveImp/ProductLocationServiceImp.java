@@ -1,6 +1,8 @@
 package ra.ecommerce_store_01.model.serviveImp;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ra.ecommerce_store_01.model.entity.ProductLocation;
 import ra.ecommerce_store_01.model.repository.ProductLocationRepository;
@@ -28,7 +30,12 @@ public class ProductLocationServiceImp implements ProductLocationService {
     }
 
     @Override
-    public List<ProductLocation> filterProductByLocation(int locationId) {
-        return productLocationRepository.findAllByLocation_LocationId(locationId);
+    public List<ProductLocation> filterProductByLocation(int locationId, Pageable pageable) {
+        return productLocationRepository.findAllByLocation_LocationId(locationId, pageable);
+    }
+
+    @Override
+    public Page<ProductLocation> getPaging(Pageable pageable) {
+        return productLocationRepository.findAll(pageable);
     }
 }
