@@ -83,7 +83,7 @@ public class ProductLocationController {
     public ResponseEntity<?> filterByLocation(@PathVariable("locationId") int locationId,
                                               @RequestParam(defaultValue = "0") int page,
                                               @RequestParam(defaultValue = "3") int size) {
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page, size);
         Page<ProductLocation> paging = productLocationService.getPaging(pageable);
         List<ProductLocation> listProductLocation = productLocationService.filterProductByLocation(locationId, pageable);
         List<ProductLocationResponse> listProductResponse = new ArrayList<>();
@@ -96,9 +96,9 @@ public class ProductLocationController {
             pro.setProductLocationStatus(product.isProductLocationStatus());
             listProductResponse.add(pro);
         }
-        Map<String,Object> data = new HashMap<>();
-        data.put("listProduct",listProductResponse);
-        data.put("totalPages",paging.getTotalPages());
+        Map<String, Object> data = new HashMap<>();
+        data.put("listProduct", listProductResponse);
+        data.put("totalPages", paging.getTotalPages());
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }
