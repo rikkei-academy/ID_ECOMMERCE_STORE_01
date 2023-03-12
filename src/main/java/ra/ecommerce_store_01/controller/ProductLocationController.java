@@ -1,6 +1,10 @@
 package ra.ecommerce_store_01.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Location;
@@ -14,7 +18,9 @@ import ra.ecommerce_store_01.payload.respone.MessageResponse;
 import ra.ecommerce_store_01.payload.respone.ProductLocationResponse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
@@ -40,7 +46,7 @@ public class ProductLocationController {
             productLocation.setProduct(product);
             productLocationService.saveOrUpdate(productLocation);
             return ResponseEntity.ok(new MessageResponse("Create successfully"));
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse("Create failed!"));
         }
     }
@@ -50,7 +56,7 @@ public class ProductLocationController {
         try {
             productLocationService.deleteProductFromLocation(productLocationId);
             return ResponseEntity.ok(new MessageResponse("Delete successfully"));
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse("Delete failed!"));
         }
     }
@@ -68,16 +74,20 @@ public class ProductLocationController {
                 productLocationService.saveOrUpdate(productLocation);
             }
             return ResponseEntity.ok(new MessageResponse("Change product location status successfully"));
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse("Change product location status failed!"));
         }
     }
 
     @GetMapping("filterByLocation/{locationId}")
-    public ResponseEntity<?> filterByLocation(@PathVariable("locationId") int locationId) {
-        List<ProductLocation> listProductLocation = productLocationService.filterProductByLocation(locationId);
+    public ResponseEntity<?> filterByLocation(@PathVariable("locationId") int locationId,
+                                              @RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "3") int size) {
+        Pageable pageable = PageRequest.of(page,size);
+        Page<ProductLocation> paging = productLocationService.getPaging(pageable);
+        List<ProductLocation> listProductLocation = productLocationService.filterProductByLocation(locationId, pageable);
         List<ProductLocationResponse> listProductResponse = new ArrayList<>();
-        for (ProductLocation product: listProductLocation) {
+        for (ProductLocation product : listProductLocation) {
             ProductLocationResponse pro = new ProductLocationResponse();
             pro.setDiscount(product.getDiscount());
             pro.setLocationName(product.getLocation().getLocationName());
@@ -86,6 +96,9 @@ public class ProductLocationController {
             pro.setProductLocationStatus(product.isProductLocationStatus());
             listProductResponse.add(pro);
         }
-        return ResponseEntity.ok(listProductResponse);
+        Map<String,Object> data = new HashMap<>();
+        data.put("listProduct",listProductResponse);
+        data.put("totalPages",paging.getTotalPages());
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }

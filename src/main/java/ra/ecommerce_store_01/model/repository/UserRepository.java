@@ -12,9 +12,9 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User,Integer> {
     User findByUserName(String userName);
     User findByUserId(int userId);
+    User findByEmail(String email);
     boolean existsByUserName(String userName);
     boolean existsByEmail(String email);
-    User findByEmail(String email);
     List<User> findAllByUserStatus(boolean status);
     @Query(value = "select u.UserID,u.UserName,u.FirstName,u.LastName,u.Phone,u.Email,u.UserStatus,u.password\n" +
             "            from user u\n" +

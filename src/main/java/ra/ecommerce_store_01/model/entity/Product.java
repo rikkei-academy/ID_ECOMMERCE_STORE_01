@@ -1,5 +1,6 @@
 package ra.ecommerce_store_01.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -36,7 +37,6 @@ public class Product {
     private List<Star> listStar = new ArrayList<>();
     @OneToMany(mappedBy = "product")
     private List<Image> listImage = new ArrayList<>();
-
     @OneToMany(mappedBy = "product")
     private List<Voucher> listVoucher = new ArrayList<>();
     @OneToMany(mappedBy = "product")
