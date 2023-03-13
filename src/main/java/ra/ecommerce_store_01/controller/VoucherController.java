@@ -27,9 +27,9 @@ import java.util.Map;
 @RequestMapping("/api/v1/voucher")
 public class VoucherController {
     @Autowired
-    VoucherService voucherService;
+    private VoucherService voucherService;
     @Autowired
-    ProductService productService;
+    private ProductService productService;
 
     @GetMapping
     public List<VoucherResponse> findAllVoucher() {
