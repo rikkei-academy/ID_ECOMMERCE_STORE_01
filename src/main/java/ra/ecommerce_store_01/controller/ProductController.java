@@ -86,6 +86,12 @@ public class ProductController {
             Catalog catalog = catalogService.findById(productModel.getCatalogId());
             product.setCatalog(catalog);
             productService.saveOrUpdate(product);
+            for (String str: productModel.getListImg()) {
+                Image image = new Image();
+                image.setImageLink(str);
+                image.setProduct(product);
+                imageService.saveOrUpdate(image);
+            }
             return ResponseEntity.ok("Creat new product successfully");
         }catch (Exception e) {
             e.printStackTrace();
@@ -104,6 +110,19 @@ public class ProductController {
           Catalog catalog = catalogService.findById(productModel.getCatalogId());
           product.setCatalog(catalog);
           productService.saveOrUpdate(product);
+          if (productModel.getListImg()==null) {
+              product.setListImage(product.getListImage());
+          } else {
+              for (Image image : product.getListImage()) {
+                  imageService.delete(image.getImageId());
+              }
+              for (String str: productModel.getListImg()) {
+                  Image image = new Image();
+                  image.setImageLink(str);
+                  image.setProduct(product);
+                  imageService.saveOrUpdate(image);
+              }
+          }
           return ResponseEntity.ok("Creat new product successfully");
        } catch (Exception e){
           e.printStackTrace();
