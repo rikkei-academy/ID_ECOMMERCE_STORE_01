@@ -49,7 +49,6 @@ public class UserController {
     private RoleService roleService;
     @Autowired
     private PasswordEncoder encoder;
-
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
         if (userService.existsByUserName(signupRequest.getUserName())) {
@@ -119,7 +118,6 @@ public class UserController {
             return ResponseEntity.badRequest().body(new MessageResponse("Mật khẩu cũ không đúng, vui lòng thử lại!"));
         }
     }
-
 
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
@@ -236,7 +234,6 @@ public class UserController {
     @PatchMapping("/updateUser")
     public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate,@RequestParam int userId) {
         User user = userService.findByUserId(userId);
-//        CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             user.setUserName(userUpdate.getUserName());
             user.setFirstName(userUpdate.getFirstName());
             user.setLastName(userUpdate.getLastName());
@@ -245,4 +242,5 @@ public class UserController {
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(user);
     }
+
 }

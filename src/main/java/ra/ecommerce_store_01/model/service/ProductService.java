@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import ra.ecommerce_store_01.model.entity.Product;
 
 import org.springframework.data.domain.Pageable;
+import ra.ecommerce_store_01.payload.request.ProductModel;
 
 import java.util.List;
 
@@ -20,5 +21,10 @@ public interface ProductService {
 
     Page<Product> getPagging(Pageable pageable);
 
-    List<Product> findByCatalog_CatalogId(int catId);
+    Page<Product> findByCatalog_CatalogId(int catId,Pageable pageable);
+
+    boolean deleteProduct(int proId);
+
+    Page<Product> searchProductByPriceBetween(float starPrice,float endPrice,Pageable pageable);
+
 }
