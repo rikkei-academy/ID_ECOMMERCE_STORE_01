@@ -2,6 +2,7 @@ package ra.ecommerce_store_01.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.service.BlogService;
 import ra.ecommerce_store_01.payload.request.BlogRequest;
@@ -74,6 +75,7 @@ public class BlogController {
     // ------------------------ Create Blog --------------------------------
 
     @PostMapping("createBlog")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createBlog(@RequestBody BlogRequest blogRequest) {
         blogRequest.setBlogStatus(true);
         blogRequest.setCreateDate(new Date());
@@ -88,6 +90,7 @@ public class BlogController {
     // ------------------------ Update Blog --------------------------------
 
     @PutMapping("updateBlog/{blogId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateBlog(@RequestBody BlogRequest blogRequest,@PathVariable("blogId")int blogId) {
         blogRequest.setBlogId(blogId);
         boolean check = blogService.saveOrUpdate(blogRequest);
@@ -101,6 +104,7 @@ public class BlogController {
     // ------------------------ Xóa Blog --------------------------------
 
     @PutMapping("deleteBlog/{blogId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteBlog(@PathVariable("blogId")int blogId) {
         boolean check = blogService.deleteBlog(blogId);
         if (check){
