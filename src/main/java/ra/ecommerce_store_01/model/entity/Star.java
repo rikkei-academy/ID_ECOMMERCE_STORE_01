@@ -15,11 +15,11 @@ public class Star {
     private int starId;
     @JoinColumn(name = "Star")
     private float Star;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "ProductID")
     private Product product;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "UserId")
     private User user;
