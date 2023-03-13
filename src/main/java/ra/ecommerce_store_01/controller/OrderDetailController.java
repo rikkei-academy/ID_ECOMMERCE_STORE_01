@@ -20,7 +20,7 @@ public class OrderDetailController {
 
      /*
         FindById
-        inputValue: Interger id
+        inputValue: Integer id
         outPutValue: orderDetailRespone
         made By: tin
      */
@@ -53,7 +53,7 @@ public class OrderDetailController {
     /*
       updateCart
       inputValue: OrderDetailRequest
-                  cartId
+                  Integer cartId
       outPutValue: true/false
       made By: tin
    */
@@ -71,7 +71,7 @@ public class OrderDetailController {
 
     /*
     deleteCart
-    inputValue: cartId
+    inputValue: Integer cartId
     outPutValue: true/false
     made By: tin
     */
