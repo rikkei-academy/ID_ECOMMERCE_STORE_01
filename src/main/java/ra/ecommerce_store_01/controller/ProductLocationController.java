@@ -27,11 +27,11 @@ import java.util.Map;
 @RequestMapping("/api/v1/productLocation")
 public class ProductLocationController {
     @Autowired
-    ProductLocationService productLocationService;
+    private ProductLocationService productLocationService;
     @Autowired
-    ProductService productService;
+    private ProductService productService;
     @Autowired
-    LocationService locationService;
+    private LocationService locationService;
 
     @PostMapping
     public ResponseEntity<?> createProductLocation(@RequestBody ProductLocationRequest productLocationRequest) {
