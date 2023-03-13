@@ -2,6 +2,7 @@ package ra.ecommerce_store_01.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.service.OrderDetailService;
@@ -20,12 +21,13 @@ public class OrderDetailController {
 
      /*
         FindById
-        inputValue: Interger id
+        inputValue: Integer id
         outPutValue: orderDetailRespone
         made By: tin
      */
 
     @GetMapping("findById")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> findCartById(@PathVariable("id") int id) {
         OrderDetailResponse orderDetailResponse = orderDetailService.findById(id);
         return ResponseEntity.ok(orderDetailResponse);
@@ -39,6 +41,7 @@ public class OrderDetailController {
    */
 
     @PostMapping("insertCart")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> insertOrderDetail(@RequestBody OrderDetailRequest orderDetailRequest) {
         CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderDetailRequest.setUserId(customUserDetail.getUserId());
@@ -53,12 +56,13 @@ public class OrderDetailController {
     /*
       updateCart
       inputValue: OrderDetailRequest
-                  cartId
+                  Integer cartId
       outPutValue: true/false
       made By: tin
    */
 
     @PatchMapping("updateCart/{cartId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateCart(@RequestBody OrderDetailRequest orderDetailRequest, @PathVariable("cartId") int cartId) {
         orderDetailRequest.setOrderDetailId(cartId);
         boolean check = orderDetailService.update(orderDetailRequest);
@@ -71,12 +75,13 @@ public class OrderDetailController {
 
     /*
     deleteCart
-    inputValue: cartId
+    inputValue: Integer cartId
     outPutValue: true/false
     made By: tin
     */
 
     @DeleteMapping("delete/{cartId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> delete(@PathVariable("cartId") int cartId) {
 
         boolean check = orderDetailService.deleteCart(cartId);
