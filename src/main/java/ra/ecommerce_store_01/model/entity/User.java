@@ -1,12 +1,10 @@
 package ra.ecommerce_store_01.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Entity
@@ -23,17 +21,24 @@ public class User {
     private String firstName;
     @JoinColumn(name = "LastName")
     private String lastName;
-//    @Column(name = "Created")
-//    @JsonFormat(pattern = "dd/MM/yyyy")
-//    private Date created;
     @JoinColumn(name = "Email",nullable = false,unique = true)
     private String email;
     @JoinColumn(name = "Phone")
     private String phone;
     @JoinColumn(name = "UserStatus")
     private boolean userStatus;
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "User_Role",joinColumns = @JoinColumn(name = "UserId"),
             inverseJoinColumns = @JoinColumn(name = "RoleId"))
     private Set<Roles> listRoles = new HashSet<>();
+    @OneToMany(mappedBy = "user")
+    private List<Star> listStar = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "wishlist",joinColumns = @JoinColumn(name = "UserId"),
+            inverseJoinColumns = @JoinColumn(name = "productId"))
+    private Set<Product> wishList = new HashSet<>();
+    @OneToMany(mappedBy = "user")
+    private List<Orders> listOrder = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<Review> listReview = new ArrayList<>();
 }
