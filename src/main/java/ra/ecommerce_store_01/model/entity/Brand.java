@@ -17,7 +17,6 @@ public class Brand {
     private String brandName;
     @JoinColumn(name = "brandStatus")
     private boolean brandStatus;
-    @OneToMany(mappedBy = "brand")
-    private List<Product> listProduct;
+
 
 }

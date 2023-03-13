@@ -23,4 +23,9 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 //            "order by p.ProductID limit :size offset :page",nativeQuery = true)
 //    List<Product> findByLocationName(@Param("page") int page, @Param("size") int size, @Param("loId") int locationId);
     Page<Product> findAllByPriceBetween(float starPrice,float endPrice,Pageable pageable);
+
+    @Query(nativeQuery = true,value = "select p.productId, p.delivery, p.description, p.imageLink, p.price, p.productName, p.productStatus, p.brand_brandId, p.CatalogID, p.views\n" +
+            "from product p\n" +
+            "order by views desc limit 15;")
+    List<Product> featuredProducts();
 }
