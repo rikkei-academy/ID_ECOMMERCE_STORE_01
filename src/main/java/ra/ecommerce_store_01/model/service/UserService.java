@@ -22,4 +22,5 @@ public interface UserService {
     List<UserReponse> searchByName(String name);
     User getUserById(int id);
 
+    boolean addOrRemoteWishList(int userId,int productId,String action);
 }

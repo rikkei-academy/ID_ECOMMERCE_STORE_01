@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ra.ecommerce_store_01.model.entity.Product;
 import ra.ecommerce_store_01.model.entity.User;
+import ra.ecommerce_store_01.model.repository.ProductRepository;
 import ra.ecommerce_store_01.model.repository.UserRepository;
 import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.respone.UserReponse;
@@ -16,6 +18,8 @@ import java.util.Map;
 public class UserServiceImp implements UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ProductRepository productRepository;
     @Override
     public User findByUserName(String userName) {
         return userRepository.findByUserName(userName);
@@ -176,5 +180,36 @@ public class UserServiceImp implements UserService {
     @Override
     public User getUserById(int id) {
         return userRepository.findById(id).get();
+    }
+
+    @Override
+    public boolean addOrRemoteWishList(int userId, int productId,String action) {
+        User user = userRepository.findById(userId).get();
+        boolean check = false;
+        if (action.equals("add")){
+            // Nếu add vào wishList thì sản phẩm đã có hay không add vào yêu thích cũng được!
+            check = true;
+            user.getWishList().add(productRepository.findById(productId).get());
+        }else {
+            for (Product product :user.getWishList()) {
+                if (product.getProductId()==productId){
+                    user.getWishList().remove(product);
+                    check =true; // Nếu sản phẩm đã có trong yêu thích thì return true;
+                    break;
+                }
+            }
+        }
+        if (check){
+            try {
+                userRepository.save(user);
+                return true;
+            }catch (Exception e){
+                e.printStackTrace();
+                return false;
+            }
+        }else {
+            // sản phẩm chưa có trong danh sách yêu thích
+            return false;
+        }
     }
 }
