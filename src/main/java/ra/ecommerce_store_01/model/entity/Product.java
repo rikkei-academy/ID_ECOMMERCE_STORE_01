@@ -29,6 +29,8 @@ public class Product {
     private String description;
     @JoinColumn(name = "ProductStatus")
     private boolean productStatus;
+    @JoinColumn(name = "views")
+    private int views;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CatalogID")
     private Catalog catalog;
@@ -38,7 +40,6 @@ public class Product {
     private List<Star> listStar = new ArrayList<>();
     @OneToMany(mappedBy = "product")
     private List<Image> listImage = new ArrayList<>();
-
     @OneToMany(mappedBy = "product")
     private List<Voucher> listVoucher = new ArrayList<>();
     @OneToMany(mappedBy = "product")

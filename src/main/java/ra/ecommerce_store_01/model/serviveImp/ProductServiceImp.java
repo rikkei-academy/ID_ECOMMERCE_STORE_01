@@ -4,11 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ra.ecommerce_store_01.model.entity.Image;
 import ra.ecommerce_store_01.model.entity.Product;
 import ra.ecommerce_store_01.model.repository.ProductRepository;
 import ra.ecommerce_store_01.model.service.ProductService;
 import ra.ecommerce_store_01.payload.request.ProductModel;
+import ra.ecommerce_store_01.payload.respone.ProductResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -67,5 +70,30 @@ public class ProductServiceImp implements ProductService {
     @Override
     public Page<Product> searchProductByPriceBetween(float starPrice, float endPrice, Pageable pageable) {
         return productRepository.findAllByPriceBetween(starPrice,endPrice,pageable);
+    }
+
+    @Override
+    public List<ProductResponse> featuredProducts() {
+        List<Product> listProduct = productRepository.featuredProducts();
+        List<ProductResponse> list = new ArrayList<>();
+        for (Product pr :listProduct) {
+            ProductResponse productResponse = new ProductResponse();
+            productResponse.setProductId(pr.getProductId());
+            productResponse.setProductName(pr.getProductName());
+            productResponse.setDelivery(pr.isDelivery());
+            productResponse.setImageLink(pr.getImageLink());
+            productResponse.setPrice(pr.getPrice());
+            productResponse.setDescription(pr.getDescription());
+            productResponse.setBrandId(pr.getBrand().getBrandId());
+            productResponse.setBrandName(pr.getBrand().getBrandName());
+            productResponse.setCatalogId(pr.getCatalog().getCatalogId());
+            productResponse.setCatalogName(pr.getCatalog().getCatalogName());
+            productResponse.setViews(pr.getViews());
+            for (Image image :pr.getListImage()) {
+                productResponse.getListImage().add(image.getImageLink());
+            }
+            list.add(productResponse);
+        }
+        return list;
     }
 }
