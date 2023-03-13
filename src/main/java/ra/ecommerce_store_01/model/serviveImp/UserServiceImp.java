@@ -177,6 +177,5 @@ public class UserServiceImp implements UserService {
     @Override
     public User getUserById(int id) {
         return userRepository.findById(id).get();
-
     }
 }

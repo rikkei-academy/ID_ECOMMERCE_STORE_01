@@ -1,6 +1,6 @@
 package ra.ecommerce_store_01.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 import javax.persistence.*;
@@ -41,5 +41,4 @@ public class User {
     private List<Orders> listOrder = new ArrayList<>();
     @OneToMany(mappedBy = "user")
     private List<Review> listReview = new ArrayList<>();
-
 }

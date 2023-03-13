@@ -12,6 +12,7 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User,Integer> {
     User findByUserName(String userName);
     User findByUserId(int userId);
+    User findByEmail(String email);
     boolean existsByUserName(String userName);
     boolean existsByEmail(String email);
     List<User> findAllByUserStatus(boolean status);
@@ -30,5 +31,4 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     int totalPage(@Param("size") int size);
 
     List<User> searchByFirstNameContaining(String name);
-    User findByEmail(String email);
 }
