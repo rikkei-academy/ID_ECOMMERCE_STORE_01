@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.service.OrderService;
@@ -30,6 +31,7 @@ public class OrderController {
        made By: tin
     */
     @GetMapping("findAll")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "6") int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -45,6 +47,7 @@ public class OrderController {
    */
 
     @GetMapping("findAllByStatus")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> findAllByStatus(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "6") int size,
                                              @RequestParam int status) {
@@ -63,6 +66,7 @@ public class OrderController {
    */
 
     @GetMapping("softBy")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> softBy(@RequestParam(defaultValue = "0") int page,
                                     @RequestParam(defaultValue = "6") int size,
                                     @RequestParam("direction") String direction,
@@ -93,6 +97,7 @@ public class OrderController {
    */
 
     @GetMapping("findById/{orderId}")
+
     public ResponseEntity<?> findById(@PathVariable("orderId") int orderId) {
         OrderResponse orderResponse = orderService.findById(orderId);
         return ResponseEntity.ok(orderResponse);
@@ -106,6 +111,7 @@ public class OrderController {
    */
 
     @GetMapping("user/findAll")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> findAllForUser(@RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "6") int size) {
 
@@ -124,6 +130,7 @@ public class OrderController {
    */
 
     @GetMapping("user/findAllByStatus")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> findAllByStatusForUser(@RequestParam(defaultValue = "0") int page,
                                                     @RequestParam(defaultValue = "6") int size,
                                                     @RequestParam("status")int status) {
@@ -144,6 +151,7 @@ public class OrderController {
    */
 
     @PostMapping("createOrder")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest){
         String user = "user";
         CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -166,6 +174,7 @@ public class OrderController {
    */
 
     @PutMapping("checkout/{orderId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> checkout(@RequestBody OrderRequest orderRequest,@PathVariable("orderId")int orderId){
        orderRequest.setOrderStatus(1);
        orderRequest.setOrderId(orderId);
@@ -183,7 +192,7 @@ public class OrderController {
       outPutValue: true/false
       made By: tin
    */
-
+    @PreAuthorize("hasRole('USER')")
     @PatchMapping("user/comfirmOrder/{orderId}")
     public ResponseEntity<?> comfirmOrderByUser(@PathVariable("orderId")int orderId){
         OrderRequest orderRequest = new OrderRequest();
@@ -205,7 +214,7 @@ public class OrderController {
       outPutValue: true/false
       made By: tin
    */
-
+    @PreAuthorize("hasRole('USER')")
     @PatchMapping("user/cancle/{orderId}")
     public ResponseEntity<?> cancleOrderByUser(@PathVariable("orderId")int orderId){
         OrderRequest orderRequest = new OrderRequest();
@@ -228,6 +237,7 @@ public class OrderController {
     outPutValue: true/false
     made By: tin
  */
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("comfirmOrder")
     public ResponseEntity<?> comfirmOrder(@RequestBody ConfirmOrder confirmOrder){
         boolean action = true;
@@ -246,6 +256,7 @@ public class OrderController {
       made By: tin
    */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("cancleOrder")
     public ResponseEntity<?> cancleOrder(@RequestBody ConfirmOrder confirmOrder){
         boolean action = false;
