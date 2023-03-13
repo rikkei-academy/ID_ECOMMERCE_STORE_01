@@ -15,5 +15,5 @@ public class ProductModel {
     private String description;
     private int catalogId;
 //    private int brandId;
-//    private List<String> listImg = new ArrayList<>();
+    private List<String> listImg = new ArrayList<>();
 }
