@@ -3,7 +3,6 @@ package ra.ecommerce_store_01.model.entity;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Data
@@ -17,6 +16,4 @@ public class Brand {
     private String brandName;
     @JoinColumn(name = "brandStatus")
     private boolean brandStatus;
-
-
 }
