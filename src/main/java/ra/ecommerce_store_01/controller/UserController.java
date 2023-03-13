@@ -108,7 +108,6 @@ public class UserController {
         }
     }
 
-
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -224,7 +223,6 @@ public class UserController {
     @PatchMapping("/updateUser")
     public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate,@RequestParam int userId) {
         User user = userService.findByUserId(userId);
-//        CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             user.setUserName(userUpdate.getUserName());
             user.setFirstName(userUpdate.getFirstName());
             user.setLastName(userUpdate.getLastName());
@@ -233,4 +231,5 @@ public class UserController {
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(user);
     }
+
 }

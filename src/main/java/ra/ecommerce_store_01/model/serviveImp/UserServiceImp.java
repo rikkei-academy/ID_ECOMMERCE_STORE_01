@@ -8,11 +8,10 @@ import ra.ecommerce_store_01.model.entity.User;
 import ra.ecommerce_store_01.model.repository.UserRepository;
 import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.respone.UserReponse;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map
 @Service
 public class UserServiceImp implements UserService {
     @Autowired
@@ -177,6 +176,5 @@ public class UserServiceImp implements UserService {
     @Override
     public User getUserById(int id) {
         return userRepository.findById(id).get();
-
     }
 }

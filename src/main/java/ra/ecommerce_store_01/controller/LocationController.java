@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Location;
 import ra.ecommerce_store_01.model.service.LocationService;
@@ -59,15 +59,17 @@ public class LocationController {
         }
     }
 
-    @GetMapping("paging")
+    @GetMapping("/paging")
     public ResponseEntity<?> getPaging(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Location> comments = locationService.getPaging(pageable);
+        Page<Location> locations = locationService.getPaging(pageable);
         Map<String, Object> data = new HashMap<>();
-        data.put("location", comments.getContent());
-        data.put("totalPages", comments.getTotalPages());
+        data.put("location", locations.getContent());
+        data.put("total",locations.getSize());
+        data.put("totalItems", locations.getTotalElements());
+        data.put("totalPages", locations.getTotalPages());
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
@@ -76,12 +78,12 @@ public class LocationController {
                                                             @RequestParam(defaultValue = "0") int page,
                                                             @RequestParam(defaultValue = "10 ") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Location> pageProduct = locationService.searchByName(locationName,pageable);
+        Page<Location> pageLocation = locationService.searchByName(locationName,pageable);
         Map<String, Object> data = new HashMap<>();
-        data.put("location", pageProduct.getContent());
-        data.put("total", pageProduct.getSize());
-        data.put("totalItems", pageProduct.getTotalElements());
-        data.put("totalPages", pageProduct.getTotalPages());
+        data.put("location", pageLocation.getContent());
+        data.put("total", pageLocation.getSize());
+        data.put("totalItems", pageLocation.getTotalElements());
+        data.put("totalPages", pageLocation.getTotalPages());
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }

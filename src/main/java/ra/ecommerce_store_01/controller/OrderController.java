@@ -149,7 +149,7 @@ public class OrderController {
         }
     }
 
-    //                 ----------------- USER CONFIRM ORDER   -------------------
+    //                 ----------------- USER CANCLE ORDER   -------------------
 
     @PatchMapping("user/cancle/{orderId}")
     public ResponseEntity<?> cancleOrderByUser(@RequestBody OrderRequest orderRequest,@PathVariable("orderId")int orderId){

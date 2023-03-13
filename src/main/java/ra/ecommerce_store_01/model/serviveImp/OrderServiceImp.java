@@ -16,10 +16,7 @@ import ra.ecommerce_store_01.payload.request.OrderRequest;
 import ra.ecommerce_store_01.payload.respone.OrderDetailResponse;
 import ra.ecommerce_store_01.payload.respone.OrderResponse;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class OrderServiceImp implements OrderService {
@@ -288,6 +285,15 @@ public class OrderServiceImp implements OrderService {
             orders.setContact(orderRequest.getContext());
             orders.setFirstName(orderRequest.getFirstName());
             orders.setLastName(orderRequest.getLastName());
+            orders.setCreateDate(new Date());
+            float subtotal = 0;
+            for (OrderDetail orderDetail :orders.getListOrderDetail()) {
+                subtotal+=orderDetail.getTotalPrice();
+            }
+            orders.setSubTotal(subtotal);
+            orders.setTax((float) (subtotal*0.1));
+            orders.setShipping(0);
+            orders.setTotalAmount(orders.getSubTotal()+orders.getTax()+orders.getShipping());
             orderRepository.save(orders);
             return true;
         }catch (Exception e){
@@ -297,18 +303,23 @@ public class OrderServiceImp implements OrderService {
 
     @Override
     public boolean confirmOrder(ConfirmOrder confirmOrder,boolean active) {
+        boolean check = true;
         try {
             for (Integer id :confirmOrder.getListOrder()) {
                 Orders orders = orderRepository.findById(id).get();
-                if (active){
-                    orders.setOrderStatus(2);
-                }else {
-                    orders.setOrderStatus(4);
+                if (orders.getOrderStatus()==1){
+                    if (active){
+                        orders.setOrderStatus(2);
+                    }else {
+                        orders.setOrderStatus(4);
+                    }
+                } else {
+                  check = false;
                 }
             }
-            return true;
+            return check;
         }catch (Exception e){
-            return false;
+            return check;
         }
     }
 }

@@ -14,6 +14,8 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "ReviewID")
     private int reviewId;
+    @JoinColumn(name = "Content",columnDefinition = "text")
+    private String content;
     @JoinColumn(name = "Created")
     private Date createDate;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -24,6 +26,4 @@ public class Review {
     @JsonIgnore
     @JoinColumn(name = "UserId")
     private User user;
-
-
 }
