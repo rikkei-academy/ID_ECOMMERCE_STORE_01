@@ -1,5 +1,6 @@
 package ra.ecommerce_store_01.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -47,6 +48,7 @@ public class Orders {
     private String node;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "UserId")
+    @JsonIgnore
     private User user;
     @OneToMany(mappedBy = "orders")
     private List<OrderDetail> listOrderDetail = new ArrayList<>();

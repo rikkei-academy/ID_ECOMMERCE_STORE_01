@@ -14,7 +14,7 @@ public class Image {
     private int imageId;
     @JoinColumn(name = "ImageLink")
     private String imageLink;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ProductID")
     private Product product;
 }
