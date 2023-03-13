@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.service.OrderService;
@@ -23,9 +24,14 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    // ----------------------------   FIND ALL --------------------------------------
+    /*
+       ADMIN - findAll  order
 
+       outPutValue: List<Order>
+       made By: tin
+    */
     @GetMapping("findAll")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "6") int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -33,9 +39,15 @@ public class OrderController {
         return ResponseEntity.ok(list);
     }
 
-    // ----------------------------   FIND ALL BY STATUS --------------------------------------
+    /*
+      ADMIN - findAllByStatus (findAll order by status: waitting, pending, delivery, confirmed, canceled )
+      inputValue:   Integer status
+      outPutValue: List<Order>
+      made By: tin
+   */
 
     @GetMapping("findAllByStatus")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> findAllByStatus(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "6") int size,
                                              @RequestParam int status) {
@@ -44,9 +56,17 @@ public class OrderController {
         return ResponseEntity.ok(list);
     }
 
-    // ----------------------------   SOFT BY --------------------------------------
+     /*
+      SoftBy totalAmount or createDate
+      inputValue:   Integer page, Integer Size
+                    String direction(ASC/DESC)
+                    String softBy  amount/createDate
+       outPutValue: List<Order>
+      made By: tin
+   */
 
     @GetMapping("softBy")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> softBy(@RequestParam(defaultValue = "0") int page,
                                     @RequestParam(defaultValue = "6") int size,
                                     @RequestParam("direction") String direction,
@@ -69,17 +89,29 @@ public class OrderController {
         return ResponseEntity.ok(list);
     }
 
-    // ----------------------------   FIND BY ID --------------------------------------
+       /*
+      findById
+      inputValue:   Integer orderId
+      outPutValue: Orders
+      made By: tin
+   */
 
     @GetMapping("findById/{orderId}")
+
     public ResponseEntity<?> findById(@PathVariable("orderId") int orderId) {
         OrderResponse orderResponse = orderService.findById(orderId);
         return ResponseEntity.ok(orderResponse);
     }
 
-    // ---------------------------- USER  FIND ALL  --------------------------------------
+    /*
+      USER - findAll  order
+
+      outPutValue: List<Order>
+      made By: tin
+   */
 
     @GetMapping("user/findAll")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> findAllForUser(@RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "6") int size) {
 
@@ -90,9 +122,15 @@ public class OrderController {
         return ResponseEntity.ok(list);
     }
 
-    // ---------------------------- USER  FIND ALL  --------------------------------------
+     /*
+      USER - findAllByStatus (findAll order by status: waitting, pending, delivery, confirmed, canceled )
+      inputValue:   Integer status
+      outPutValue: List<Order>
+      made By: tin
+   */
 
     @GetMapping("user/findAllByStatus")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> findAllByStatusForUser(@RequestParam(defaultValue = "0") int page,
                                                     @RequestParam(defaultValue = "6") int size,
                                                     @RequestParam("status")int status) {
@@ -104,9 +142,16 @@ public class OrderController {
         return ResponseEntity.ok(list);
     }
 
-    //                       ---------------  CREATE ORDER   -------------------
+    /*
+      USER - create Order
+      inputValue:   OrderRequest
+
+      outPutValue: true/false
+      made By: tin
+   */
 
     @PostMapping("createOrder")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest){
         String user = "user";
         CustomUserDetails customUserDetail = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -120,9 +165,16 @@ public class OrderController {
         }
     }
 
-    //                 ----------------- CHECKOUT ORDER   -------------------
+     /*
+      USER - checkout Order
+      inputValue:   OrderRequest
+                    Interger orderId
+      outPutValue: true/false
+      made By: tin
+   */
 
     @PutMapping("checkout/{orderId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> checkout(@RequestBody OrderRequest orderRequest,@PathVariable("orderId")int orderId){
        orderRequest.setOrderStatus(1);
        orderRequest.setOrderId(orderId);
@@ -134,10 +186,17 @@ public class OrderController {
         }
     }
 
-    //                 ----------------- USER CONFIRM ORDER   -------------------
-
+    /*
+      USER - Confirm Order
+      inputValue: Interger orderId
+      outPutValue: true/false
+      made By: tin
+   */
+    @PreAuthorize("hasRole('USER')")
     @PatchMapping("user/comfirmOrder/{orderId}")
-    public ResponseEntity<?> comfirmOrderByUser(@RequestBody OrderRequest orderRequest,@PathVariable("orderId")int orderId){
+    public ResponseEntity<?> comfirmOrderByUser(@PathVariable("orderId")int orderId){
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setOrderId(orderId);
         orderRequest.setOrderStatus(3);
         orderRequest.setOrderId(orderId);
         String user = "";
@@ -149,10 +208,17 @@ public class OrderController {
         }
     }
 
-    //                 ----------------- USER CANCLE ORDER   -------------------
-
+    /*
+       USER - cancle Order
+      inputValue: Interger orderId
+      outPutValue: true/false
+      made By: tin
+   */
+    @PreAuthorize("hasRole('USER')")
     @PatchMapping("user/cancle/{orderId}")
-    public ResponseEntity<?> cancleOrderByUser(@RequestBody OrderRequest orderRequest,@PathVariable("orderId")int orderId){
+    public ResponseEntity<?> cancleOrderByUser(@PathVariable("orderId")int orderId){
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setOrderId(orderId);
         orderRequest.setOrderStatus(4);
         orderRequest.setOrderId(orderId);
         String user = "";
@@ -165,8 +231,13 @@ public class OrderController {
     }
 
 
-    //                 ----------------- ADMIN CONFIRM ORDER   -------------------
-
+    /*
+    comfirmOrder
+    inputValue: ConfirmOrder
+    outPutValue: true/false
+    made By: tin
+ */
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("comfirmOrder")
     public ResponseEntity<?> comfirmOrder(@RequestBody ConfirmOrder confirmOrder){
         boolean action = true;
@@ -178,8 +249,14 @@ public class OrderController {
         }
     }
 
-    //                 ----------------- ADMIN CANCLE ORDER   -------------------
+      /*
+      cancleOrder
+      inputValue: ConfirmOrder
+      outPutValue: true/false
+      made By: tin
+   */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("cancleOrder")
     public ResponseEntity<?> cancleOrder(@RequestBody ConfirmOrder confirmOrder){
         boolean action = false;
