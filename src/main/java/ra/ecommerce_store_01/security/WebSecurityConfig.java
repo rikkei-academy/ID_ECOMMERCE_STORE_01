@@ -57,9 +57,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/api/v1/auth/**").permitAll() // Cho phép tất cả mọi người truy cập vào địa chỉ này
+                .antMatchers("/api/v1/user/**").permitAll() // Cho phép tất cả mọi người truy cập vào địa chỉ này
+                .antMatchers("/api/v1/catalog/**").permitAll()
+                .antMatchers("/api/v1/voucher/**").permitAll()
+                .antMatchers("/api/v1/comment/**").permitAll()
+                .antMatchers("/api/v1/productLocation/**").permitAll()
+                .antMatchers("/api/v1/auth/**").permitAll()
+                .antMatchers("/api/v1/location/**").permitAll()
+                .antMatchers("/api/v1/product/**").permitAll()
+                .antMatchers("/api/v1/review/**").permitAll()
+                .antMatchers("/api/v1/auth/**").permitAll()// Cho phép tất cả mọi người truy cập vào địa chỉ này
                 .anyRequest().authenticated(); // Tất cả các request khác đều cần phải xác thực mới được truy cập
-
-        // Thêm một lớp Filter kiểm tra jwt
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
     @GetMapping("/logOut")
