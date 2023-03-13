@@ -1,9 +1,12 @@
 package ra.ecommerce_store_01.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -13,7 +16,6 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "ProductID")
-
     private int productId;
     @JoinColumn(name = "ProductName")
     private String productName;

@@ -55,8 +55,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/v1/catalog/**").permitAll()
                 .antMatchers("/api/v1/comment/**").permitAll()
                 .antMatchers("/api/v1/location/**").permitAll()
+                .antMatchers("/api/v1/product/**").permitAll()
+                .antMatchers("/api/v1/review/**").permitAll()
                 .antMatchers("/api/v1/auth/**").permitAll()// Cho phép tất cả mọi người truy cập vào địa chỉ này
-                .antMatchers("/api/v1/test/**").permitAll()
                 .anyRequest().authenticated(); // Tất cả các request khác đều cần phải xác thực mới được truy cập
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }

@@ -103,7 +103,9 @@ public class CommentControler {
         Page<Comment> comments = commentService.getPaging(pageable);
         Map<String,Object> data = new HashMap<>();
         data.put("comment",comments.getContent());
+        data.put("totalItem",comments.getSize());
         data.put("totalPages",comments.getTotalPages());
+        data.put("total",comments.getTotalElements());
         return  new ResponseEntity<>(data, HttpStatus.OK);
     }
 }
