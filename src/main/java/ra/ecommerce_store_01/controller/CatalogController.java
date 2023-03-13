@@ -73,7 +73,7 @@ public class CatalogController {
     @GetMapping("paging")
     public ResponseEntity<?> getPaging(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size){
+            @RequestParam(defaultValue = "5") int size){
         Pageable pageable = PageRequest.of(page,size);
         Page<Catalog> catalogs = catalogService.getPaging(pageable);
         Map<String,Object> data = new HashMap<>();
@@ -84,7 +84,7 @@ public class CatalogController {
     @GetMapping("sortByName")
     public ResponseEntity<?> getPagingAndSortByName(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size,
+            @RequestParam(defaultValue = "5") int size,
             @RequestParam String direction){
         Sort.Order order;
         if(direction.equals("asc")){
@@ -104,7 +104,7 @@ public class CatalogController {
     @GetMapping("sortById")
     public ResponseEntity<?> getPagingAndSortById(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size,
+            @RequestParam(defaultValue = "5") int size,
             @RequestParam String direction){
         Sort.Order order;
         if(direction.equals("asc")){
