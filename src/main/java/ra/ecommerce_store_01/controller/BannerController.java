@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Banner;
 import ra.ecommerce_store_01.model.service.BannerService;
@@ -22,6 +23,12 @@ public class BannerController {
     private BannerService bannerService;
 
     @GetMapping
+
+    public List<Banner> findAllBanner() {
+        return bannerService.findAll();
+    }
+
+
     public ResponseEntity<?> getAllBannerAndPaging(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size){
@@ -32,7 +39,9 @@ public class BannerController {
         data.put("totalPages",banners.getTotalPages());
         return  new ResponseEntity<>(data, HttpStatus.OK);
     }
+
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createBanner(@RequestBody Banner banner) {
         try {
             banner.setBannerStatus(true);
@@ -44,6 +53,7 @@ public class BannerController {
     }
 
     @PutMapping("updateBanner/{bannerId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateBanner(@PathVariable("bannerId") int bannerId, @RequestBody Banner banner) {
         try {
             Banner bannerUpdate = bannerService.findById(bannerId);
@@ -57,6 +67,7 @@ public class BannerController {
     }
 
     @GetMapping("changeBannerStatus/{bannerId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> changeBannerStatus(@PathVariable("bannerId") int bannerId, @RequestParam("action") String action) {
         Banner banner = bannerService.findById(bannerId);
         try {
@@ -75,6 +86,7 @@ public class BannerController {
     }
 
     @DeleteMapping("{bannerId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteBanner(@PathVariable("bannerId") int bannerId) {
         try {
             bannerService.delete(bannerId);

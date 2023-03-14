@@ -14,6 +14,12 @@ import java.util.List;
 public class BannerServiceImp implements BannerService {
     @Autowired
     private BannerRepository bannerRepository;
+
+    @Override
+    public List<Banner> findAll() {
+        return bannerRepository.findAll();
+    }
+
     @Override
     public Banner saveOrUpdate(Banner banner) {
         return bannerRepository.save(banner);
