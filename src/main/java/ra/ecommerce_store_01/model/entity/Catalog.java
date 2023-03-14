@@ -19,7 +19,4 @@ public class Catalog {
     private String catalogName;
     @JoinColumn(name = "CatalogStatus")
     private boolean catalogStatus;
-    @JsonIgnore
-    @OneToMany(mappedBy = "catalog")
-    private List<Product> listProduct = new ArrayList<>();
 }

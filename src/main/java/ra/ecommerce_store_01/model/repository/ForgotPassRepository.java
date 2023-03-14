@@ -7,10 +7,10 @@ import org.springframework.stereotype.Repository;
 import ra.ecommerce_store_01.model.entity.PasswordResetToken;
 @Repository
 public interface ForgotPassRepository extends JpaRepository<PasswordResetToken,Integer> {
-    @Query(value = "select id, startDate, token, userid\n" +
+    @Query(value = "select id, startDate, token, userId\n" +
             "    from PasswordResetToken\n" +
             "where id= (select max(id)\n" +
             "           from PasswordResetToken\n" +
-            "           where userid = :uId)", nativeQuery = true)
+            "           where userId = :uId)", nativeQuery = true)
     PasswordResetToken getLastTokenByUserId(@Param("uId")int uId);
 }

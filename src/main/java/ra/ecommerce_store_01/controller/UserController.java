@@ -5,30 +5,41 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.jwt.JwtTokenProvider;
-import ra.ecommerce_store_01.model.entity.ERole;
-import ra.ecommerce_store_01.model.entity.Roles;
-import ra.ecommerce_store_01.model.entity.User;
+import ra.ecommerce_store_01.model.entity.*;
 import ra.ecommerce_store_01.model.service.RoleService;
 import ra.ecommerce_store_01.model.service.UserService;
 import ra.ecommerce_store_01.payload.request.LoginRequest;
+
+
+import ra.ecommerce_store_01.payload.respone.*;
+
 import ra.ecommerce_store_01.payload.request.ResetPasswordRequest;
 import ra.ecommerce_store_01.payload.request.SignupRequest;
-import ra.ecommerce_store_01.model.entity.PasswordResetToken;
 import ra.ecommerce_store_01.model.sendEmail.ProvideSendEmail;
 import ra.ecommerce_store_01.model.service.ForgotPassService;
 import ra.ecommerce_store_01.payload.request.UserUpdate;
 import ra.ecommerce_store_01.payload.respone.JwtResponse;
-import ra.ecommerce_store_01.payload.respone.MessageResponse;
-import ra.ecommerce_store_01.payload.respone.UserReponse;
+
 import ra.ecommerce_store_01.security.CustomUserDetails;
+import ra.ecommerce_store_01.security.CustomUserDetailsService;
+
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:8080")
@@ -49,6 +60,8 @@ public class UserController {
     private RoleService roleService;
     @Autowired
     private PasswordEncoder encoder;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
@@ -64,36 +77,17 @@ public class UserController {
         user.setUserName(signupRequest.getUserName());
         user.setPassword(encoder.encode(signupRequest.getPassword()));
         user.setEmail(signupRequest.getEmail());
-
-
         user.setFirstName(signupRequest.getFirstName());
         user.setLastName(signupRequest.getLastName());
-
         user.setPhone(signupRequest.getPhone());
         user.setUserStatus(true);
         Set<String> strRoles = signupRequest.getListRoles();
         Set<Roles> listRoles = new HashSet<>();
-        System.out.println(strRoles.toString());
 
-
-        if (strRoles==null){
+        if (strRoles == null) {
             //User quyen mac dinh
             Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
             listRoles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-
-                switch (role) {
-                    case "admin":
-                        Roles adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
-                        listRoles.add(adminRole);
-                    case "user":
-                        Roles userRole = roleService.findByRoleName(ERole.ROLE_USER)
-                                .orElseThrow(()->new RuntimeException("Error: Role is not found"));
-                        listRoles.add(userRole);
-                }
-            });
         }
         user.setListRoles(listRoles);
         userService.saveOrUpdate(user);
@@ -101,8 +95,7 @@ public class UserController {
     }
 
 
-
-    @PostMapping("resetPassword")
+    @PatchMapping("resetPassword")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.findByUserName(userDetails.getUsername());
@@ -120,9 +113,9 @@ public class UserController {
         }
     }
 
-
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword())
         );
@@ -139,10 +132,13 @@ public class UserController {
 
 
     @GetMapping("/forgotPassword")
-    public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail) {
-        System.out.println(userEmail);
+    public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail, HttpServletRequest request) {
         if (userService.existsByEmail(userEmail)) {
             User users = userService.findByEmail(userEmail);
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(users.getUserName());
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             String token = UUID.randomUUID().toString();
             PasswordResetToken myToken = new PasswordResetToken();
             myToken.setToken(token);
@@ -159,26 +155,22 @@ public class UserController {
         }
     }
 
-    @PostMapping("/creatNewPass")
-    public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("userName") String userName, @RequestParam("newPassword") String newPassword) {
-        User user = userService.findByUserName(userName);
-        if (user == null) {
-            return new ResponseEntity<>(new MessageResponse("token is fail"), HttpStatus.NO_CONTENT);
+    @PatchMapping("/creatNewPass")
+    public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(userDetails.getUserId());
+        long date1 = passwordResetToken.getStartDate().getTime() + 1800000;
+        long date2 = new Date().getTime();
+        if (date2 > date1) {
+            return new ResponseEntity<>(new MessageResponse("Expired Token "), HttpStatus.EXPECTATION_FAILED);
         } else {
-            PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(user.getUserId());
-            long date1 = passwordResetToken.getStartDate().getTime() + 1800000;
-            long date2 = new Date().getTime();
-            if (date2 > date1) {
-                return new ResponseEntity<>(new MessageResponse("Expired Token "), HttpStatus.EXPECTATION_FAILED);
+            if (passwordResetToken.getToken().equals(token)) {
+                User users = userService.findByUserId(userDetails.getUserId());
+                users.setPassword(encoder.encode(newPassword));
+                userService.saveOrUpdate(users);
+                return new ResponseEntity<>(new MessageResponse("update password successfully "), HttpStatus.OK);
             } else {
-                if (passwordResetToken.getToken().equals(token)) {
-                    User user1 = userService.findByUserId(user.getUserId());
-                    user.setPassword(encoder.encode(newPassword));
-                    userService.saveOrUpdate(user1);
-                    return new ResponseEntity<>(new MessageResponse("update password successfully "), HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
-                }
+                return new ResponseEntity<>(new MessageResponse("token is fail "), HttpStatus.NO_CONTENT);
             }
         }
     }
@@ -204,8 +196,7 @@ public class UserController {
     }
 
 
-
-    @PutMapping("blockUser/{userId}")
+    @PatchMapping("blockUser/{userId}")
     public ResponseEntity<?> blockUser(@PathVariable("userId") int userId) {
         boolean check = userService.blockUser(userId);
         if (check) {
@@ -228,20 +219,100 @@ public class UserController {
         Map<String, Object> list = userService.pagination(pageable);
         return ResponseEntity.ok(list);
     }
+
     @GetMapping("/getById")
     public ResponseEntity<?> getById(@RequestParam int userId) {
         return ResponseEntity.ok(userService.findById(userId));
     }
 
     @PatchMapping("/updateUser")
-    public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate,@RequestParam int userId) {
+    public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate, @RequestParam int userId) {
         User user = userService.findByUserId(userId);
-            user.setUserName(userUpdate.getUserName());
-            user.setFirstName(userUpdate.getFirstName());
-            user.setLastName(userUpdate.getLastName());
-            user.setEmail(userUpdate.getEmail());
-            user.setPhone(userUpdate.getPhone());
+        user.setUserName(userUpdate.getUserName());
+        user.setFirstName(userUpdate.getFirstName());
+        user.setLastName(userUpdate.getLastName());
+        user.setEmail(userUpdate.getEmail());
+        user.setPhone(userUpdate.getPhone());
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/logOut")
+    public ResponseEntity<?> logOut(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+
+        // Clear the authentication from server-side (in this case, Spring Security)
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok("You have been logged out.");
+    }
+
+    /*
+        ADD TO WISHLIST - add a product to WishList
+        input value: Integer productId
+        output value: true/false
+        tin
+     */
+    @PatchMapping("addToWishList/{productId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> addToWishList(@PathVariable("productId") int proId) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        boolean check = userService.addOrRemoteWishList(userDetails.getUserId(), proId, "add");
+        if (check) {
+            return ResponseEntity.ok("Đã thêm sản phẩm vào danh sách yêu thích thành công ! ");
+        } else {
+            return ResponseEntity.ok("Thêm sản phẩm vào yêu thích thất bại! ");
+        }
+    }
+
+
+    /*
+       REMOTE WISHLIST - remote a product to WishList
+       input value: Integer productId
+       output value: true/false
+       tin
+    */
+    @PatchMapping("remoteWishList/{productId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> remoteWishList(@PathVariable("productId") int proId) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        boolean check = userService.addOrRemoteWishList(userDetails.getUserId(), proId, "remote");
+        if (check) {
+            return ResponseEntity.ok("Đã xóa sản phẩm khỏi danh sách yêu thích thành công ! ");
+        } else {
+            return ResponseEntity.ok("Xóa sản phẩm vào yêu thích thất bại! Hoặc chưa có sản phẩm trong danh sách yêu thích! ");
+        }
+    }
+
+    //=================================================
+    /*
+       FIND ALL WISHLISt - Find all products in the user's wishlist.
+       output value: List<Product>
+       tin
+    */
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("findAllWishList")
+    public ResponseEntity<?> findAllWishList() {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userService.findByUserId(userDetails.getUserId());
+        List<ProductResponse> list = new ArrayList<>();
+        for (Product pr : user.getWishList()) {
+            ProductResponse productResponse = new ProductResponse();
+            productResponse.setProductId(pr.getProductId());
+            productResponse.setProductName(pr.getProductName());
+            productResponse.setDelivery(pr.isDelivery());
+            productResponse.setImageLink(pr.getImageLink());
+            productResponse.setPrice(pr.getPrice());
+            productResponse.setDescription(pr.getDescription());
+            productResponse.setBrandId(pr.getBrand().getBrandId());
+            productResponse.setBrandName(pr.getBrand().getBrandName());
+            productResponse.setCatalogId(pr.getCatalog().getCatalogId());
+            productResponse.setCatalogName(pr.getCatalog().getCatalogName());
+            productResponse.setViews(pr.getViews());
+            for (Image image : pr.getListImage()) {
+                productResponse.getListImage().add(image.getImageLink());
+            }
+            list.add(productResponse);
+        }
+        return ResponseEntity.ok(list);
     }
 }

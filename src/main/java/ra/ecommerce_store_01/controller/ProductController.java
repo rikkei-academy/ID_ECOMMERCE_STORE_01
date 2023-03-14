@@ -9,14 +9,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ra.ecommerce_store_01.model.entity.Catalog;
-import ra.ecommerce_store_01.model.entity.Product;
-import ra.ecommerce_store_01.model.service.CatalogService;
-import ra.ecommerce_store_01.model.service.ImageService;
-import ra.ecommerce_store_01.model.service.ProductService;
+import ra.ecommerce_store_01.model.entity.*;
+import ra.ecommerce_store_01.model.service.*;
 import ra.ecommerce_store_01.payload.request.ProductModel;
 import ra.ecommerce_store_01.payload.respone.MessageResponse;
-import java.time.LocalDate;
+import ra.ecommerce_store_01.payload.respone.ProductResponse;
+
 import java.util.HashMap;
 
 
@@ -32,7 +30,7 @@ public class ProductController {
     private CatalogService catalogService;
     private ProductService productService;
     private ImageService imageService;
-
+    private BrandService brandService;
     @GetMapping
     public List<Product> getAllProduct() {
         return productService.findAll();
@@ -82,7 +80,15 @@ public class ProductController {
             product.setProductStatus(true);
             Catalog catalog = catalogService.findById(productModel.getCatalogId());
             product.setCatalog(catalog);
+            Brand brand = brandService.findById(productModel.getBrandId());
+            product.setBrand(brand);
             productService.saveOrUpdate(product);
+            for (String str: productModel.getListImg()) {
+                Image image = new Image();
+                image.setImageLink(str);
+                image.setProduct(product);
+                imageService.saveOrUpdate(image);
+            }
             return ResponseEntity.ok("Creat new product successfully");
         }catch (Exception e) {
             e.printStackTrace();
@@ -100,7 +106,22 @@ public class ProductController {
           product.setDescription(productModel.getDescription());
           Catalog catalog = catalogService.findById(productModel.getCatalogId());
           product.setCatalog(catalog);
+          Brand brand = brandService.findById(productModel.getBrandId());
+          product.setBrand(brand);
           productService.saveOrUpdate(product);
+          if (productModel.getListImg()==null) {
+              product.setListImage(product.getListImage());
+          } else {
+              for (Image image : product.getListImage()) {
+                  imageService.delete(image.getImageId());
+              }
+              for (String str: productModel.getListImg()) {
+                  Image image = new Image();
+                  image.setImageLink(str);
+                  image.setProduct(product);
+                  imageService.saveOrUpdate(image);
+              }
+          }
           return ResponseEntity.ok("Creat new product successfully");
        } catch (Exception e){
           e.printStackTrace();
@@ -124,7 +145,29 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ResponseEntity<?> getByProductId(@PathVariable int productId) {
         Product pr = productService.findById(productId);
-        return ResponseEntity.ok(pr);
+        pr.setViews(pr.getViews()+1); //tăng lượt views lên 1
+        try {
+            pr = productService.saveOrUpdate(pr);
+            ProductResponse productResponse = new ProductResponse();
+            productResponse.setProductId(pr.getProductId());
+            productResponse.setProductName(pr.getProductName());
+            productResponse.setDelivery(pr.isDelivery());
+            productResponse.setImageLink(pr.getImageLink());
+            productResponse.setPrice(pr.getPrice());
+            productResponse.setDescription(pr.getDescription());
+            productResponse.setBrandId(pr.getBrand().getBrandId());
+            productResponse.setBrandName(pr.getBrand().getBrandName());
+            productResponse.setCatalogId(pr.getCatalog().getCatalogId());
+            productResponse.setCatalogName(pr.getCatalog().getCatalogName());
+            productResponse.setViews(pr.getViews());
+            for (Image image :pr.getListImage()) {
+                productResponse.getListImage().add(image.getImageLink());
+            }
+            return ResponseEntity.ok(productResponse);
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.ok("có lỗi trong quá trình xử lý vui lòng thử lại!");
+        }
     }
     @GetMapping("searchByCatalogId/{catalogId}")
     public ResponseEntity<Map<String,Object>> searchByCatalogId(@PathVariable int catalogId,
@@ -152,6 +195,18 @@ public class ProductController {
         data.put("totalItems",products.getTotalElements());
         data.put("totalPages",products.getTotalPages());
         return new ResponseEntity<>(data,HttpStatus.OK);
+    }
+
+
+
+    /*
+       Get featured Products
+       output: List<Product>
+     */
+    @GetMapping("featuredProducts")
+    public ResponseEntity<?> featuredProducts(){
+        List<ProductResponse> list = productService.featuredProducts();
+        return ResponseEntity.ok(list);
     }
 }
 

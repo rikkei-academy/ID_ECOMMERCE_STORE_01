@@ -5,6 +5,7 @@ import ra.ecommerce_store_01.model.entity.Product;
 
 import org.springframework.data.domain.Pageable;
 import ra.ecommerce_store_01.payload.request.ProductModel;
+import ra.ecommerce_store_01.payload.respone.ProductResponse;
 
 import java.util.List;
 
@@ -26,5 +27,7 @@ public interface ProductService {
     boolean deleteProduct(int proId);
 
     Page<Product> searchProductByPriceBetween(float starPrice,float endPrice,Pageable pageable);
+
+    List<ProductResponse> featuredProducts();
 
 }

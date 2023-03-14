@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Catalog;
 import ra.ecommerce_store_01.model.service.CatalogService;
@@ -21,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/catalog")
 public class CatalogController {
     @Autowired
-    CatalogService catalogService;
+    private CatalogService catalogService;
 
     @GetMapping
     public List<Catalog> getAllCatalog() {
@@ -32,19 +33,30 @@ public class CatalogController {
         return catalogService.findById(catalogId);
     }
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@RequestBody Catalog catalog){
-        catalog.setCatalogStatus(true);
-        catalogService.saveOrUpdate(catalog);
-        return ResponseEntity.ok(new MessageResponse("Add new catalog successfully!"));
+        try {
+            catalog.setCatalogStatus(true);
+            catalogService.saveOrUpdate(catalog);
+            return ResponseEntity.ok(new MessageResponse("Add new catalog successfully!"));
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body("Create Failed!");
+        }
     }
     @PutMapping("{catalogID}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateCatalog(@PathVariable("catalogID") int catalogId, @RequestBody Catalog catalog) {
-        Catalog catalogUpdate = catalogService.findById(catalogId);
-        catalogUpdate.setCatalogName(catalog.getCatalogName());
-        catalogService.saveOrUpdate(catalogUpdate);
-        return ResponseEntity.ok(new MessageResponse("Update catalog successfully"));
+        try {
+            Catalog catalogUpdate = catalogService.findById(catalogId);
+            catalogUpdate.setCatalogName(catalog.getCatalogName());
+            catalogService.saveOrUpdate(catalogUpdate);
+            return ResponseEntity.ok(new MessageResponse("Update catalog successfully"));
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body("Update Failed!");
+        }
     }
     @GetMapping("lockCatalog/{catalogID}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> lockCatalog(@PathVariable("catalogID") int catalogId) {
         Catalog catalog = catalogService.findById(catalogId);
         catalog.setCatalogStatus(false);
@@ -52,6 +64,7 @@ public class CatalogController {
         return ResponseEntity.ok(new MessageResponse("Lock catalog successfully"));
     }
     @GetMapping("unlockCatalog/{catalogID}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> unlockCatalog(@PathVariable("catalogID") int catalogId) {
         Catalog catalog = catalogService.findById(catalogId);
         catalog.setCatalogStatus(true);
@@ -65,7 +78,7 @@ public class CatalogController {
     @GetMapping("paging")
     public ResponseEntity<?> getPaging(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size){
+            @RequestParam(defaultValue = "5") int size){
         Pageable pageable = PageRequest.of(page,size);
         Page<Catalog> catalogs = catalogService.getPaging(pageable);
         Map<String,Object> data = new HashMap<>();
@@ -73,62 +86,43 @@ public class CatalogController {
         data.put("totalPages",catalogs.getTotalPages());
         return  new ResponseEntity<>(data, HttpStatus.OK);
     }
-    @GetMapping("sortByNameDesc")
-    public ResponseEntity<?> getPagingAndSortByNameDesc(
+    @GetMapping("sortByName")
+    public ResponseEntity<?> getPagingAndSortByName(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size){
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam String direction){
         Sort.Order order;
-        order=new Sort.Order(Sort.Direction.DESC,"catalogName");
-        Pageable pageable = PageRequest.of(page,size,Sort.by(order));
+        if(direction.equals("asc")){
+            order = new Sort.Order(Sort.Direction.ASC,"catalogName");
+        }else {
+            order = new Sort.Order(Sort.Direction.DESC,"catalogName");
+        }
+        Pageable pageable = PageRequest.of(page, size,Sort.by(order));
         Page<Catalog> catalogs = catalogService.getPaging(pageable);
         Map<String,Object> data = new HashMap<>();
         data.put("catalog",catalogs.getContent());
         data.put("totalItems",catalogs.getTotalElements());
         data.put("totalPages",catalogs.getTotalPages());
-        return  new ResponseEntity<>(data, HttpStatus.OK);
+        return new ResponseEntity<>(data,HttpStatus.OK);
     }
-    @GetMapping("sortByNameAsc")
-    public ResponseEntity<?> getPagingAndSortByNameAsc(
+
+    @GetMapping("sortById")
+    public ResponseEntity<?> getPagingAndSortById(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size){
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam String direction){
         Sort.Order order;
-        order=new Sort.Order(Sort.DEFAULT_DIRECTION,"catalogName");
-        Pageable pageable = PageRequest.of(page,size,Sort.by(order));
-        Page<Catalog> catalogs = catalogService.getPaging(pageable);
-        Map<String,Object> data = new HashMap<>();
-        data.put("catalog",catalogs.getContent());
-        data.put("total",catalogs.getSize());
-        data.put("totalItems",catalogs.getTotalElements());
-        data.put("totalPages",catalogs.getTotalPages());
-        return  new ResponseEntity<>(data, HttpStatus.OK);
-    }
-    @GetMapping("sortByIdDesc")
-    public ResponseEntity<?> getPagingAndSortByIdDesc(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size){
-        Sort.Order order;
-        order=new Sort.Order(Sort.Direction.DESC,"catalogId");
-        Pageable pageable = PageRequest.of(page,size,Sort.by(order));
+        if(direction.equals("asc")){
+            order = new Sort.Order(Sort.Direction.ASC,"catalogId");
+        }else {
+            order = new Sort.Order(Sort.Direction.DESC,"catalogId");
+        }
+        Pageable pageable = PageRequest.of(page, size,Sort.by(order));
         Page<Catalog> catalogs = catalogService.getPaging(pageable);
         Map<String,Object> data = new HashMap<>();
         data.put("catalog",catalogs.getContent());
         data.put("totalItems",catalogs.getTotalElements());
         data.put("totalPages",catalogs.getTotalPages());
-        return  new ResponseEntity<>(data, HttpStatus.OK);
-    }
-    @GetMapping("sortByIdAsc")
-    public ResponseEntity<?> getPagingAndSortByIdAsc(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size){
-        Sort.Order order;
-        order=new Sort.Order(Sort.DEFAULT_DIRECTION,"catalogId");
-        Pageable pageable = PageRequest.of(page,size,Sort.by(order));
-        Page<Catalog> catalogs = catalogService.getPaging(pageable);
-        Map<String,Object> data = new HashMap<>();
-        data.put("catalog",catalogs.getContent());
-        data.put("total",catalogs.getSize());
-        data.put("totalItems",catalogs.getTotalElements());
-        data.put("totalPages",catalogs.getTotalPages());
-        return  new ResponseEntity<>(data, HttpStatus.OK);
+        return new ResponseEntity<>(data,HttpStatus.OK);
     }
 }
