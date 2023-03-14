@@ -23,6 +23,11 @@ public class BrandController {
     private BrandService brandService;
 
     @GetMapping
+    public List<Brand> findAllBrand() {
+        return brandService.findAll();
+    }
+
+    @GetMapping("getAllBrandAndPaging")
     public ResponseEntity<?> getAllBrandAndPaging(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {

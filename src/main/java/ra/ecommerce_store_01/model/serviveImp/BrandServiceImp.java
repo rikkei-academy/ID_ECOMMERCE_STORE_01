@@ -14,6 +14,12 @@ import java.util.List;
 public class BrandServiceImp implements BrandService {
     @Autowired
     private BrandRepository brandRepository;
+
+    @Override
+    public List<Brand> findAll() {
+        return brandRepository.findAll();
+    }
+
     @Override
     public Brand saveOrUpdate(Brand brand) {
         return brandRepository.save(brand);
