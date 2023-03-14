@@ -35,9 +35,7 @@ public class FlashSaleOrderController {
         Orders orderNew = new Orders();
         Orders orders = orderService.findByUserIdAndStatus(customUserDetail.getUserId(),0);
         ItemFlashSale itemFlashSale = itemFlashSaleService.findById(flashSaleOrderRequest.getItemFlashSaleId());
-
         if (orders==null){
-
             orderNew.setUser(userService.findByUserId(customUserDetail.getUserId()));
             orders = orderService.save(orderNew);
         }
