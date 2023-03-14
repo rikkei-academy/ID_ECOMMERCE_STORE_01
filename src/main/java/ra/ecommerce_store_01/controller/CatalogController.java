@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Catalog;
 import ra.ecommerce_store_01.model.service.CatalogService;
@@ -32,6 +33,7 @@ public class CatalogController {
         return catalogService.findById(catalogId);
     }
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@RequestBody Catalog catalog){
         try {
             catalog.setCatalogStatus(true);
@@ -42,6 +44,7 @@ public class CatalogController {
         }
     }
     @PutMapping("{catalogID}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateCatalog(@PathVariable("catalogID") int catalogId, @RequestBody Catalog catalog) {
         try {
             Catalog catalogUpdate = catalogService.findById(catalogId);
@@ -53,6 +56,7 @@ public class CatalogController {
         }
     }
     @GetMapping("lockCatalog/{catalogID}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> lockCatalog(@PathVariable("catalogID") int catalogId) {
         Catalog catalog = catalogService.findById(catalogId);
         catalog.setCatalogStatus(false);
@@ -60,6 +64,7 @@ public class CatalogController {
         return ResponseEntity.ok(new MessageResponse("Lock catalog successfully"));
     }
     @GetMapping("unlockCatalog/{catalogID}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> unlockCatalog(@PathVariable("catalogID") int catalogId) {
         Catalog catalog = catalogService.findById(catalogId);
         catalog.setCatalogStatus(true);

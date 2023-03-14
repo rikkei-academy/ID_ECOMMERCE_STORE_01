@@ -7,6 +7,7 @@ import ra.ecommerce_store_01.model.entity.Banner;
 import java.util.List;
 
 public interface BannerService {
+    List<Banner> findAll();
     Banner saveOrUpdate(Banner banner);
     void delete(int bannerId);
     Banner findById(int bannerId);

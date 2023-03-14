@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Location;
 import ra.ecommerce_store_01.model.entity.Product;
@@ -34,6 +35,7 @@ public class ProductLocationController {
     private LocationService locationService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createProductLocation(@RequestBody ProductLocationRequest productLocationRequest) {
         try {
             ProductLocation productLocation = new ProductLocation();
@@ -52,6 +54,7 @@ public class ProductLocationController {
     }
 
     @DeleteMapping("{productLocationId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteProductLocation(@PathVariable("productLocationId") int productLocationId) {
         try {
             productLocationService.deleteProductFromLocation(productLocationId);
@@ -62,6 +65,7 @@ public class ProductLocationController {
     }
 
     @PatchMapping("changeStatus/{productLocationId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> changeProductLocationStatus(@PathVariable("productLocationId") int productLocationId, @RequestParam("action") String action) {
         try {
             ProductLocation productLocation = productLocationService.findById(productLocationId);

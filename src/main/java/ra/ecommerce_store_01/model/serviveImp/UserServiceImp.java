@@ -177,10 +177,6 @@ public class UserServiceImp implements UserService {
         }
         return list;
     }
-    @Override
-    public User getUserById(int id) {
-        return userRepository.findById(id).get();
-    }
 
     @Override
     public boolean addOrRemoteWishList(int userId, int productId,String action) {
