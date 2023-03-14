@@ -60,16 +60,7 @@ public class FlashSaleOrderController {
                 return ResponseEntity.ok("Them that bai");
             }
         }else {
-//            OrderDetailRequest orderDetailRequest = new OrderDetailRequest();
-//            orderDetailRequest.setQuantity(1);
-//            orderDetailRequest.setUserId(customUserDetail.getUserId());
-//            orderDetailRequest.setProductId(itemFlashSale.getProduct().getProductId());
-//            check = orderDetailService.save(orderDetailRequest);
-//            if (check){
-//                return ResponseEntity.ok("Sản phẩm đang sales đã có trong giỏ hàng của bạn! Đã thêm sản phẩm vào giỏ hàng ");
-//            }else {
-//                return ResponseEntity.ok("Có lỗi trong quá trình xử lý vui lòng thử lại!");
-//            }
+
             return ResponseEntity.ok("Sản phẩm đang sales đã có trong giỏ hàng của bạn! ");
         }
 
