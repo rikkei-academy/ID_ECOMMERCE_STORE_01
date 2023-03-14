@@ -30,13 +30,13 @@ public class BannerController {
     @GetMapping("getAllBannerAndPaging")
     public ResponseEntity<?> getAllBannerAndPaging(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size){
-        Pageable pageable = PageRequest.of(page,size);
+            @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
         Page<Banner> banners = bannerService.getPaging(pageable);
-        Map<String,Object> data = new HashMap<>();
-        data.put("banner",banners.getContent());
-        data.put("totalPages",banners.getTotalPages());
-        return  new ResponseEntity<>(data, HttpStatus.OK);
+        Map<String, Object> data = new HashMap<>();
+        data.put("banner", banners.getContent());
+        data.put("totalPages", banners.getTotalPages());
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     @PostMapping
@@ -90,7 +90,7 @@ public class BannerController {
         try {
             bannerService.delete(bannerId);
             return ResponseEntity.ok("Delete successfully");
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Delete failed");
         }
     }
@@ -99,13 +99,13 @@ public class BannerController {
     public ResponseEntity<?> getPaging(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
-            @RequestParam("content") String content){
-        Pageable pageable = PageRequest.of(page,size);
-        List<Banner> listBanner = bannerService.findByContent(content,pageable);
+            @RequestParam("content") String content) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Banner> listBanner = bannerService.findByContent(content, pageable);
         Page<Banner> banners = bannerService.getPaging(pageable);
-        Map<String,Object> data = new HashMap<>();
-        data.put("banner",listBanner);
-        data.put("totalPages",banners.getTotalPages());
-        return  new ResponseEntity<>(data, HttpStatus.OK);
+        Map<String, Object> data = new HashMap<>();
+        data.put("banner", listBanner);
+        data.put("totalPages", banners.getTotalPages());
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }

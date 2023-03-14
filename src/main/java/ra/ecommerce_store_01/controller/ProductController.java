@@ -9,17 +9,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ra.ecommerce_store_01.model.entity.Catalog;
-import ra.ecommerce_store_01.model.entity.Image;
-import ra.ecommerce_store_01.model.entity.Product;
-import ra.ecommerce_store_01.model.service.CatalogService;
-import ra.ecommerce_store_01.model.service.ImageService;
-import ra.ecommerce_store_01.model.service.ProductService;
+import ra.ecommerce_store_01.model.entity.*;
+import ra.ecommerce_store_01.model.service.*;
 import ra.ecommerce_store_01.payload.request.ProductModel;
 import ra.ecommerce_store_01.payload.respone.MessageResponse;
 import ra.ecommerce_store_01.payload.respone.ProductResponse;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 
 
@@ -35,7 +30,7 @@ public class ProductController {
     private CatalogService catalogService;
     private ProductService productService;
     private ImageService imageService;
-
+    private BrandService brandService;
     @GetMapping
     public List<Product> getAllProduct() {
         return productService.findAll();
@@ -85,6 +80,8 @@ public class ProductController {
             product.setProductStatus(true);
             Catalog catalog = catalogService.findById(productModel.getCatalogId());
             product.setCatalog(catalog);
+            Brand brand = brandService.findById(productModel.getBrandId());
+            product.setBrand(brand);
             productService.saveOrUpdate(product);
             for (String str: productModel.getListImg()) {
                 Image image = new Image();
@@ -109,6 +106,8 @@ public class ProductController {
           product.setDescription(productModel.getDescription());
           Catalog catalog = catalogService.findById(productModel.getCatalogId());
           product.setCatalog(catalog);
+          Brand brand = brandService.findById(productModel.getBrandId());
+          product.setBrand(brand);
           productService.saveOrUpdate(product);
           if (productModel.getListImg()==null) {
               product.setListImage(product.getListImage());
