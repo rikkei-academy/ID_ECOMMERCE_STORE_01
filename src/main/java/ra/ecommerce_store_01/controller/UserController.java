@@ -34,7 +34,6 @@ import ra.ecommerce_store_01.security.CustomUserDetails;
 import ra.ecommerce_store_01.security.CustomUserDetailsService;
 
 
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -85,7 +84,7 @@ public class UserController {
         Set<String> strRoles = signupRequest.getListRoles();
         Set<Roles> listRoles = new HashSet<>();
 
-        if (strRoles==null){
+        if (strRoles == null) {
             //User quyen mac dinh
             Roles userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found"));
             listRoles.add(userRole);
@@ -96,8 +95,7 @@ public class UserController {
     }
 
 
-
-    @PostMapping("resetPassword")
+    @PatchMapping("resetPassword")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.findByUserName(userDetails.getUsername());
@@ -116,9 +114,6 @@ public class UserController {
     }
 
     @PostMapping("/signin")
-
-
-     
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -160,7 +155,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/creatNewPass")
+    @PatchMapping("/creatNewPass")
     public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(userDetails.getUserId());
@@ -201,8 +196,7 @@ public class UserController {
     }
 
 
-
-    @PutMapping("blockUser/{userId}")
+    @PatchMapping("blockUser/{userId}")
     public ResponseEntity<?> blockUser(@PathVariable("userId") int userId) {
         boolean check = userService.blockUser(userId);
         if (check) {
@@ -225,30 +219,33 @@ public class UserController {
         Map<String, Object> list = userService.pagination(pageable);
         return ResponseEntity.ok(list);
     }
+
     @GetMapping("/getById")
     public ResponseEntity<?> getById(@RequestParam int userId) {
         return ResponseEntity.ok(userService.findById(userId));
     }
 
     @PatchMapping("/updateUser")
-    public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate,@RequestParam int userId) {
+    public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate, @RequestParam int userId) {
         User user = userService.findByUserId(userId);
-            user.setUserName(userUpdate.getUserName());
-            user.setFirstName(userUpdate.getFirstName());
-            user.setLastName(userUpdate.getLastName());
-            user.setEmail(userUpdate.getEmail());
-            user.setPhone(userUpdate.getPhone());
+        user.setUserName(userUpdate.getUserName());
+        user.setFirstName(userUpdate.getFirstName());
+        user.setLastName(userUpdate.getLastName());
+        user.setEmail(userUpdate.getEmail());
+        user.setPhone(userUpdate.getPhone());
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(user);
     }
+
     @GetMapping("/logOut")
-    public ResponseEntity<?> logOut(HttpServletRequest request){
+    public ResponseEntity<?> logOut(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
 
         // Clear the authentication from server-side (in this case, Spring Security)
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok("You have been logged out.");
     }
+
     /*
         ADD TO WISHLIST - add a product to WishList
         input value: Integer productId
@@ -257,12 +254,12 @@ public class UserController {
      */
     @PatchMapping("addToWishList/{productId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> addToWishList(@PathVariable("productId") int proId){
+    public ResponseEntity<?> addToWishList(@PathVariable("productId") int proId) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        boolean check = userService.addOrRemoteWishList(userDetails.getUserId(),proId,"add");
-        if (check){
+        boolean check = userService.addOrRemoteWishList(userDetails.getUserId(), proId, "add");
+        if (check) {
             return ResponseEntity.ok("Đã thêm sản phẩm vào danh sách yêu thích thành công ! ");
-        }else {
+        } else {
             return ResponseEntity.ok("Thêm sản phẩm vào yêu thích thất bại! ");
         }
     }
@@ -276,12 +273,12 @@ public class UserController {
     */
     @PatchMapping("remoteWishList/{productId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> remoteWishList(@PathVariable("productId") int proId){
+    public ResponseEntity<?> remoteWishList(@PathVariable("productId") int proId) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        boolean check = userService.addOrRemoteWishList(userDetails.getUserId(),proId,"remote");
-        if (check){
+        boolean check = userService.addOrRemoteWishList(userDetails.getUserId(), proId, "remote");
+        if (check) {
             return ResponseEntity.ok("Đã xóa sản phẩm khỏi danh sách yêu thích thành công ! ");
-        }else {
+        } else {
             return ResponseEntity.ok("Xóa sản phẩm vào yêu thích thất bại! Hoặc chưa có sản phẩm trong danh sách yêu thích! ");
         }
     }
@@ -294,11 +291,11 @@ public class UserController {
     */
     @PreAuthorize("hasRole('USER')")
     @GetMapping("findAllWishList")
-    public ResponseEntity<?> findAllWishList (){
+    public ResponseEntity<?> findAllWishList() {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.findByUserId(userDetails.getUserId());
         List<ProductResponse> list = new ArrayList<>();
-        for (Product pr :user.getWishList()) {
+        for (Product pr : user.getWishList()) {
             ProductResponse productResponse = new ProductResponse();
             productResponse.setProductId(pr.getProductId());
             productResponse.setProductName(pr.getProductName());
@@ -311,13 +308,11 @@ public class UserController {
             productResponse.setCatalogId(pr.getCatalog().getCatalogId());
             productResponse.setCatalogName(pr.getCatalog().getCatalogName());
             productResponse.setViews(pr.getViews());
-            for (Image image :pr.getListImage()) {
+            for (Image image : pr.getListImage()) {
                 productResponse.getListImage().add(image.getImageLink());
             }
             list.add(productResponse);
         }
         return ResponseEntity.ok(list);
     }
-
-
 }

@@ -14,6 +14,6 @@ public class ProductModel {
     private boolean delivery;
     private String description;
     private int catalogId;
-//    private int brandId;
+    private int brandId;
     private List<String> listImg = new ArrayList<>();
 }
