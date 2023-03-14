@@ -15,7 +15,7 @@ public class Catalog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "CatalogID")
     private int catalogId;
-    @JoinColumn(name = "CatalogName")
+    @JoinColumn(name = "CatalogName", nullable = false, unique = true)
     private String catalogName;
     @JoinColumn(name = "CatalogStatus")
     private boolean catalogStatus;

@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Review;
 import ra.ecommerce_store_01.model.service.ProductService;
@@ -37,6 +38,7 @@ public class ReviewControler {
         return reviewService.findById(reviewId);
     }
     @PostMapping("create")
+    @PreAuthorize("hasRole('USER')")
     public Review CreateReview(@RequestBody ReviewModel reviewModel){
         Review review = new Review();
         review.setContent(reviewModel.getContent());
@@ -46,6 +48,7 @@ public class ReviewControler {
         return reviewService.saveOrUpdate(review);
     }
     @PatchMapping("/update/{reviewId}")
+    @PreAuthorize("hasRole('USER')")
     public Review updateReview(@PathVariable int reviewId,@RequestBody ReviewModel reviewModel){
         Review reviewUpdate = reviewService.findById(reviewId);
         reviewUpdate.setContent(reviewModel.getContent());
@@ -55,6 +58,7 @@ public class ReviewControler {
         return reviewService.saveOrUpdate(reviewUpdate);
     }
     @DeleteMapping("/{reviewId}")
+    @PreAuthorize("hasRole('USER')")
     public void deleteReview(@PathVariable int reviewId){
          reviewService.deleteReview(reviewId);
     }

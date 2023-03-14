@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Catalog;
 import ra.ecommerce_store_01.model.entity.Comment;
@@ -42,6 +43,7 @@ public class CommentControler {
     }
 
     @PatchMapping("/update")
+    @PreAuthorize("hasRole('USER')")
     public Comment updateComment(@RequestParam int commentId, @RequestBody CommentUpdate commentUpdate) {
         Comment comment = commentService.findById(commentId);
         comment.setComment(commentUpdate.getComment());
@@ -63,6 +65,7 @@ public class CommentControler {
     }
 
     @PatchMapping("/blockComment")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> blockComment(@RequestParam int commentId) {
         boolean check = commentService.blockComment(commentId);
         if (check) {
@@ -73,6 +76,7 @@ public class CommentControler {
     }
 
     @PatchMapping("/unBlockComment")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> unBlockComment(@RequestParam int commentId) {
         Comment comment = commentService.findById(commentId);
         if (comment.isCommentStatus()) {

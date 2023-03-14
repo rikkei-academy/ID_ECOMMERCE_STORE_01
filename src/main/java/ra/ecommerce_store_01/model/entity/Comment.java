@@ -15,7 +15,7 @@ public class Comment {
     private int commentId;
     @JoinColumn(name = "Created")
     private Date createdDate;
-    @JoinColumn(name = "CommentContent")
+    @JoinColumn(name = "CommentContent", nullable = false)
     private String comment;
     @JoinColumn(name = "CommentStatus")
     private boolean commentStatus;

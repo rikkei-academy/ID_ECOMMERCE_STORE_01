@@ -37,15 +37,23 @@ import ra.ecommerce_store_01.security.CustomUserDetailsService;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/v1/user")
 public class UserController {
+    public static final String FORMAT_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{6,39}$";
+    public static boolean checkPassword(String password) {
+        Pattern pattern = Pattern.compile(FORMAT_PASSWORD);
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
+    }
+
     @Autowired
     private ProvideSendEmail provideSendEmail;
     @Autowired
@@ -75,7 +83,11 @@ public class UserController {
         }
         User user = new User();
         user.setUserName(signupRequest.getUserName());
-        user.setPassword(encoder.encode(signupRequest.getPassword()));
+        if (checkPassword(signupRequest.getPassword())) {
+            user.setPassword(encoder.encode(signupRequest.getPassword()));
+        } else {
+            return ResponseEntity.badRequest().body("Mật khẩu phải gồm 6 ký tự trở lên, gồm ký tự thường, hoa và số");
+        }
         user.setEmail(signupRequest.getEmail());
         user.setFirstName(signupRequest.getFirstName());
         user.setLastName(signupRequest.getLastName());
@@ -96,17 +108,22 @@ public class UserController {
 
 
     @PatchMapping("resetPassword")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.findByUserName(userDetails.getUsername());
         boolean check = encoder.matches(resetPasswordRequest.getOldPassWord(), userDetails.getPassword());
         if (check) {
-            if (resetPasswordRequest.getNewPassWord().equals(resetPasswordRequest.getConfirmNewPassWord())) {
-                user.setPassword(encoder.encode(resetPasswordRequest.getNewPassWord()));
-                userService.saveOrUpdate(user);
-                return ResponseEntity.ok(new MessageResponse("Reset password successfully"));
+            if (checkPassword(resetPasswordRequest.getNewPassWord())) {
+                if (resetPasswordRequest.getNewPassWord().equals(resetPasswordRequest.getConfirmNewPassWord())) {
+                    user.setPassword(encoder.encode(resetPasswordRequest.getNewPassWord()));
+                    userService.saveOrUpdate(user);
+                    return ResponseEntity.ok(new MessageResponse("Reset password successfully"));
+                } else {
+                    return ResponseEntity.badRequest().body(new MessageResponse("Mật khẩu mới không trùng khớp, vui lòng thử lại!"));
+                }
             } else {
-                return ResponseEntity.badRequest().body(new MessageResponse("Mật khẩu mới không trùng khớp, vui lòng thử lại!"));
+                return ResponseEntity.badRequest().body("Mật khẩu phải gồm 6 ký tự trở lên, gồm ký tự thường, hoa và số");
             }
         } else {
             return ResponseEntity.badRequest().body(new MessageResponse("Mật khẩu cũ không đúng, vui lòng thử lại!"));
@@ -132,6 +149,7 @@ public class UserController {
 
 
     @GetMapping("/forgotPassword")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail, HttpServletRequest request) {
         if (userService.existsByEmail(userEmail)) {
             User users = userService.findByEmail(userEmail);
@@ -156,6 +174,7 @@ public class UserController {
     }
 
     @PatchMapping("/creatNewPass")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(userDetails.getUserId());
@@ -166,7 +185,11 @@ public class UserController {
         } else {
             if (passwordResetToken.getToken().equals(token)) {
                 User users = userService.findByUserId(userDetails.getUserId());
-                users.setPassword(encoder.encode(newPassword));
+                if (checkPassword(newPassword)) {
+                    users.setPassword(encoder.encode(newPassword));
+                } else {
+                    return ResponseEntity.badRequest().body("Mật khẩu phải gồm 6 ký tự trở lên, gồm ký tự thường, hoa và số");
+                }
                 userService.saveOrUpdate(users);
                 return new ResponseEntity<>(new MessageResponse("update password successfully "), HttpStatus.OK);
             } else {
@@ -197,6 +220,7 @@ public class UserController {
 
 
     @PatchMapping("blockUser/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> blockUser(@PathVariable("userId") int userId) {
         boolean check = userService.blockUser(userId);
         if (check) {
@@ -226,6 +250,7 @@ public class UserController {
     }
 
     @PatchMapping("/updateUser")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate, @RequestParam int userId) {
         User user = userService.findByUserId(userId);
         user.setUserName(userUpdate.getUserName());
@@ -238,6 +263,7 @@ public class UserController {
     }
 
     @GetMapping("/logOut")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> logOut(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
 

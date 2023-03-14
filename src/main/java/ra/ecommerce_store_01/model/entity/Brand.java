@@ -12,7 +12,7 @@ public class Brand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "brandId")
     private int brandId;
-    @JoinColumn(name = "brandName")
+    @JoinColumn(name = "brandName", nullable = false, unique = true)
     private String brandName;
     @JoinColumn(name = "brandStatus")
     private boolean brandStatus;

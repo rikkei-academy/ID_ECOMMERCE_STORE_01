@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Brand;
 import ra.ecommerce_store_01.model.service.BrandService;
@@ -34,6 +35,7 @@ public class BrandController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createBrand(@RequestBody Brand brand) {
         try {
             brand.setBrandStatus(true);
@@ -45,6 +47,7 @@ public class BrandController {
     }
 
     @PutMapping("{brandId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateBrand(@PathVariable("brandId") int brandId, @RequestBody Brand brand) {
         Brand brandUpdate = brandService.findById(brandId);
         try {
@@ -57,6 +60,7 @@ public class BrandController {
     }
 
     @PatchMapping("changeBrandStatus/{brandId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> changeBrandStatus(@PathVariable("brandId") int brandId, @RequestParam("action") String action) {
         Brand brand = brandService.findById(brandId);
         try {
@@ -75,6 +79,7 @@ public class BrandController {
     }
 
     @DeleteMapping("{brandId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteBrand(@PathVariable("brandId") int brandId) {
         try {
             brandService.deleteBrand(brandId);

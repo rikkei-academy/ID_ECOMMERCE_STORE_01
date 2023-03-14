@@ -17,7 +17,7 @@ public class Product {
     @JoinColumn(name = "ProductID")
 
     private int productId;
-    @JoinColumn(name = "ProductName")
+    @JoinColumn(name = "ProductName",nullable = false,unique = true)
     private String productName;
     @JoinColumn(name = "Image")
     private String imageLink;

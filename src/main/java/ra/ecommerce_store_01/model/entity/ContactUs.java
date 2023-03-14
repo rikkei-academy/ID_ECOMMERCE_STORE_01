@@ -12,11 +12,11 @@ public class ContactUs {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "ContactID")
     private int contactId;
-    @JoinColumn(name = "NameCompany")
+    @JoinColumn(name = "NameCompany", nullable = false)
     private String nameCompany;
-    @JoinColumn(name = "Email")
+    @JoinColumn(name = "Email", nullable = false)
     private String email;
-    @JoinColumn(name = "Feedback")
+    @JoinColumn(name = "Feedback", nullable = false)
     private String feedBack;
     @JoinColumn(name = "ContactStatus")
     private boolean contactStatus;

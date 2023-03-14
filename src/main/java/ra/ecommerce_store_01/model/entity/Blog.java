@@ -14,9 +14,9 @@ public class Blog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "BlogID")
     private int blogId;
-    @JoinColumn(name = "BlogName")
+    @JoinColumn(name = "BlogName", nullable = false)
     private String blogName;
-    @JoinColumn(name = "BlogContent")
+    @JoinColumn(name = "BlogContent", nullable = false)
     private String blogContent;
     @JoinColumn(name = "createDate")
     private Date createdDate;

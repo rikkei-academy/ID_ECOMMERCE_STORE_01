@@ -16,7 +16,7 @@ public class Review {
     private int reviewId;
     @JoinColumn(name = "Content",columnDefinition = "text")
     private String content;
-    @JoinColumn(name = "Created")
+    @JoinColumn(name = "Created", nullable = false)
     private Date createDate;
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore

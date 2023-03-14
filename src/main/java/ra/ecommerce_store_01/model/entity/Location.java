@@ -14,10 +14,8 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "LocationID")
     private int locationId;
-    @JoinColumn(name = "LocationName")
+    @JoinColumn(name = "LocationName",nullable = false,unique = true)
     private String locationName;
     @JoinColumn(name = "LocationStatus")
     private boolean locationStatus;
-//    @OneToMany(mappedBy = "location",fetch = FetchType.EAGER)
-//    private List<ProductLocation> productLocations = new ArrayList<>();
 }

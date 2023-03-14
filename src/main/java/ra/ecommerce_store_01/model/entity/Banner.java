@@ -12,9 +12,9 @@ public class Banner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "BannerId")
     private int bannerId;
-    @JoinColumn(name = "Content")
+    @JoinColumn(name = "Content", nullable = false)
     private String content;
-    @JoinColumn(name = "Image")
+    @JoinColumn(name = "Image", nullable = false)
     private String image;
     @JoinColumn(name = "BannerStatus")
     private boolean bannerStatus;

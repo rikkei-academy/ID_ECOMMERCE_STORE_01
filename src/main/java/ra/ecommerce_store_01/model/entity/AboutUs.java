@@ -12,8 +12,8 @@ public class AboutUs {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "AboutID")
     private int aboutId;
-    @JoinColumn(name = "AboutName")
+    @JoinColumn(name = "AboutName", nullable = false)
     private String aboutName;
-    @JoinColumn(name = "Content")
+    @JoinColumn(name = "Content", nullable = false)
     private String content;
 }

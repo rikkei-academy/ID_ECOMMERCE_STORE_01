@@ -2,6 +2,7 @@ package ra.ecommerce_store_01.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.service.BlogCatalogService;
 import ra.ecommerce_store_01.payload.request.BlogCatalogRequest;
@@ -35,6 +36,7 @@ public class BlogCatController {
     //  ---------------  Create  Blog Catalogies  ---------------------
 
     @PostMapping("createBlogCatalog")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createBlogCatalog(@RequestBody BlogCatalogRequest blog){
         boolean check = blogCatalogService.saveOrUpdate(blog);
         if (check){
@@ -48,6 +50,7 @@ public class BlogCatController {
     //  ---------------  Update  Blog Catalogies  ---------------------
 
     @PutMapping("updateBlogCatalog/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateBlogCalogies(@RequestBody BlogCatalogRequest blog,@PathVariable("id")int blogCatId){
         blog.setBlogCatId(blogCatId);
         boolean check = blogCatalogService.saveOrUpdate(blog);
@@ -61,6 +64,7 @@ public class BlogCatController {
     //  ---------------  Delete  Blog Catalogies  ---------------------
 
     @PutMapping("deleteBlogCatalog/{blogCatalogId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteBlogCatalogies(@PathVariable("blogCatalogId")int blogCatId){
         boolean check = blogCatalogService.deleteBlogCat(blogCatId);
         if (check){
@@ -93,7 +97,4 @@ public class BlogCatController {
         List<BlogCatalogResponse> list = blogCatalogService.findByStatus(status);
         return ResponseEntity.ok(list);
     }
-
-
-
 }

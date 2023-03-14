@@ -14,7 +14,7 @@ public class BlogCatalog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "BlogCatalogID")
     private int blogCatalogId;
-    @JoinColumn(name = "BlogCatalogName")
+    @JoinColumn(name = "BlogCatalogName", nullable = false, unique = true)
     private String blogCatalogName;
     @JoinColumn(name = "BlogCatalogStatus")
     private boolean blogCatalogStatus;
