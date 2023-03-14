@@ -322,4 +322,9 @@ public class OrderServiceImp implements OrderService {
             return check;
         }
     }
+
+    @Override
+    public Orders findByOrderId(int id) {
+        return orderRepository.findById(id).get();
+    }
 }
