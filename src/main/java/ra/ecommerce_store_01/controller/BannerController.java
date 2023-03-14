@@ -23,8 +23,21 @@ public class BannerController {
     private BannerService bannerService;
 
     @GetMapping
+
     public List<Banner> findAllBanner() {
         return bannerService.findAll();
+    }
+
+
+    public ResponseEntity<?> getAllBannerAndPaging(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size){
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Banner> banners = bannerService.getPaging(pageable);
+        Map<String,Object> data = new HashMap<>();
+        data.put("banner",banners.getContent());
+        data.put("totalPages",banners.getTotalPages());
+        return  new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     @PostMapping
