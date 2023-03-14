@@ -29,4 +29,5 @@ public class OrderDetail {
     @JsonIgnore
     @JoinColumn(name = "orderId")
     private Orders orders;
+
 }

@@ -52,4 +52,6 @@ public class Orders {
     private User user;
     @OneToMany(mappedBy = "orders")
     private List<OrderDetail> listOrderDetail = new ArrayList<>();
+//    @OneToMany(mappedBy = "Orders")
+//    private List<FlashSaleOrder> listFlashSaleOrder = new ArrayList<>();
 }

@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ra.ecommerce_store_01.model.entity.Location;
 import ra.ecommerce_store_01.model.entity.Review;
 import ra.ecommerce_store_01.model.service.ProductService;
 import ra.ecommerce_store_01.model.service.ReviewService;
