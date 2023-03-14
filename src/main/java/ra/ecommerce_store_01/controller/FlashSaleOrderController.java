@@ -26,8 +26,7 @@ public class FlashSaleOrderController {
     private OrderService orderService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private OrderDetailService orderDetailService;
+
     @PostMapping("/create")
     public ResponseEntity<?> createFlashSaleOrder(@RequestBody FlashSaleOrderRequest flashSaleOrderRequest){
 
@@ -60,11 +59,8 @@ public class FlashSaleOrderController {
                 return ResponseEntity.ok("Them that bai");
             }
         }else {
-
-            return ResponseEntity.ok("Sản phẩm đang sales đã có trong giỏ hàng của bạn! ");
+            return ResponseEntity.ok("Sản phẩm đang sales đã có trong giỏ hàng của bạn!!! ");
         }
-
-
     }
 
 }
