@@ -1,6 +1,8 @@
 package ra.ecommerce_store_01.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -93,7 +95,7 @@ public class BlogController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateBlog(@RequestBody BlogRequest blogRequest,@PathVariable("blogId")int blogId) {
         blogRequest.setBlogId(blogId);
-        boolean check = blogService.saveOrUpdate(blogRequest);
+        boolean check = blogService.update(blogRequest);
         if (check){
             return ResponseEntity.ok("Update  blog  thành công!");
         }else {
@@ -103,7 +105,7 @@ public class BlogController {
 
     // ------------------------ Xóa Blog --------------------------------
 
-    @PutMapping("deleteBlog/{blogId}")
+    @PatchMapping("deleteBlog/{blogId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteBlog(@PathVariable("blogId")int blogId) {
         boolean check = blogService.deleteBlog(blogId);
@@ -118,16 +120,23 @@ public class BlogController {
     // ------------------------ Search By Name --------------------------------
 
     @GetMapping("searchByName")
-    public ResponseEntity<?> searchByName(@RequestParam("searchName")String name) {
-        List<BlogResponse> list = blogService.searchByName(name);
+    public ResponseEntity<?> searchByName(@RequestParam("searchName")String name,
+                                          @RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Map<String,Object> list = blogService.searchByName(name,pageable);
         return ResponseEntity.ok(list);
     }
 
     // ------------------------ Find By Status --------------------------------
 
     @GetMapping("findByStatus")
-    public ResponseEntity<?> findByStatus(@RequestParam("status")boolean status) {
-        List<BlogResponse> list = blogService.findByStatus(status);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> findByStatus(@RequestParam("status")boolean status,
+                                          @RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Map<String,Object> list = blogService.findByStatus(status,pageable);
         return ResponseEntity.ok(list);
     }
 
@@ -135,8 +144,11 @@ public class BlogController {
     // ------------------------ Find By BlogCatalogId --------------------------------
 
     @GetMapping("findByCatalogId/{blogCatalogId}")
-    public ResponseEntity<?> findByCatalogId(@PathVariable("blogCatalogId")int id) {
-        List<BlogResponse> list = blogService.findByCatalogId(id);
+    public ResponseEntity<?> findByCatalogId(@PathVariable("blogCatalogId")int id,
+                                             @RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Map<String,Object> list = blogService.findByCatalogId(id,pageable);
         return ResponseEntity.ok(list);
     }
 

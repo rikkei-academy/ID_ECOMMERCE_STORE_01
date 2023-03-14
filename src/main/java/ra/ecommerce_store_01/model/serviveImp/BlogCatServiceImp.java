@@ -88,6 +88,9 @@ public class BlogCatServiceImp implements BlogCatalogService {
     public boolean deleteBlogCat(int id) {
         BlogCatalog blogCatalog = blogCatalogRepository.findById(id).get();
         blogCatalog.setBlogCatalogStatus(false);
+        for (Blog blog:blogCatalog.getListBlog()) {
+            blog.setBlogStatus(false);
+        }
         try {
             blogCatalogRepository.save(blogCatalog);
             return true;

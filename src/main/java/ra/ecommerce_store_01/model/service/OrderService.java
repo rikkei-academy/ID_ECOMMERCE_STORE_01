@@ -18,5 +18,6 @@ public interface OrderService {
     boolean saveOrUpdate(OrderRequest orderRequest,String action);
     boolean checkout(OrderRequest orderRequest);
     boolean confirmOrder(ConfirmOrder confirmOrder,boolean active);
-    Orders findByOrderId(int id);
+    Orders findByUserIdAndStatus(int id,int status);
+    Orders save(Orders orders);
 }

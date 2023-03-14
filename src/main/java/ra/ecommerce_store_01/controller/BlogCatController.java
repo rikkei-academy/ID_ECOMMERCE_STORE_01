@@ -36,6 +36,7 @@ public class BlogCatController {
 
     @PostMapping("createBlogCatalog")
     public ResponseEntity<?> createBlogCatalog(@RequestBody BlogCatalogRequest blog){
+        blog.setBlogcatStatus(true);
         boolean check = blogCatalogService.saveOrUpdate(blog);
         if (check){
             return ResponseEntity.ok("Thêm mới blog catelogies thành công!");
@@ -60,7 +61,7 @@ public class BlogCatController {
 
     //  ---------------  Delete  Blog Catalogies  ---------------------
 
-    @PutMapping("deleteBlogCatalog/{blogCatalogId}")
+    @PatchMapping("deleteBlogCatalog/{blogCatalogId}")
     public ResponseEntity<?> deleteBlogCatalogies(@PathVariable("blogCatalogId")int blogCatId){
         boolean check = blogCatalogService.deleteBlogCat(blogCatId);
         if (check){
