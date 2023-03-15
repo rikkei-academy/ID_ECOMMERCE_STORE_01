@@ -2,6 +2,7 @@ package ra.ecommerce_store_01.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Product;
@@ -28,6 +29,7 @@ public class StarController {
     private ProductService productService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createStar(@RequestBody StarRequest starRequest) {
         try {
             Product product = productService.findById(starRequest.getProductId());

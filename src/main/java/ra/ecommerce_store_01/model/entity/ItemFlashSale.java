@@ -13,9 +13,9 @@ public class ItemFlashSale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "ItemFlashSaleId")
     private int itemFlashSaleId;
-    @JoinColumn(name = "Discount")
+    @JoinColumn(name = "Discount",nullable = false)
     private float discount;
-    @JoinColumn(name ="Quantity")
+    @JoinColumn(name ="Quantity",nullable = false)
     private int quantity;
     @JoinColumn(name = "SoldQuantity")
     private int soldQuantity;

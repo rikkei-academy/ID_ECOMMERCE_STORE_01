@@ -12,9 +12,9 @@ public class Voucher {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "VoucherID")
     private int voucherId;
-    @JoinColumn(name = "Quantity")
+    @JoinColumn(name = "Quantity", nullable = false)
     private int quantity;
-    @JoinColumn(name = "discount")
+    @JoinColumn(name = "discount", nullable = false)
     private float discount;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ProductID")

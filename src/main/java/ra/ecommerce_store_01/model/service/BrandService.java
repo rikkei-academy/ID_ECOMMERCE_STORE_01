@@ -7,6 +7,7 @@ import ra.ecommerce_store_01.model.entity.Brand;
 import java.util.List;
 
 public interface BrandService {
+    List<Brand> findAll();
     Brand saveOrUpdate(Brand brand);
     void deleteBrand(int brandId);
     Brand findById(int brandId);

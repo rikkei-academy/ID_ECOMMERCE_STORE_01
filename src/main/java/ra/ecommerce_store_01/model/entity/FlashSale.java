@@ -13,9 +13,9 @@ public class FlashSale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "FlashSaleId")
     private int flashSaleId;
-    @JoinColumn(name = "StarTime")
+    @JoinColumn(name = "StarTime", nullable = false)
     private Date starTime;
-    @JoinColumn(name = "EndTime")
+    @JoinColumn(name = "EndTime", nullable = false)
     private Date endTime;
     @JoinColumn(name = "Title")
     private String  title;

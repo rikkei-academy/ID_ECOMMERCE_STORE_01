@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.*;
 import ra.ecommerce_store_01.model.service.*;
@@ -37,6 +38,7 @@ public class ProductController {
     }
 
     @PatchMapping("/delete/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteProduct(@PathVariable int productId) {
         boolean check = productService.deleteProduct(productId);
         if (check) {
@@ -69,6 +71,7 @@ public class ProductController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> creatNew(@RequestBody ProductModel productModel) {
         try {
             Product product = new Product();
@@ -96,6 +99,7 @@ public class ProductController {
         }
     }
     @PatchMapping("/update")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateProduct(@RequestParam("productId") int productId, @RequestBody ProductModel productModel) {
       try {
           Product product = productService.findById(productId);

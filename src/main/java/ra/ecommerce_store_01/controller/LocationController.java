@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ra.ecommerce_store_01.model.entity.Location;
 import ra.ecommerce_store_01.model.service.LocationService;
@@ -34,6 +35,7 @@ public class LocationController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public Location createNewLocation(@RequestBody LocationModel locationModel) {
         Location location = new Location();
         location.setLocationName(locationModel.getLocationName());
@@ -43,6 +45,7 @@ public class LocationController {
     }
 
     @PatchMapping("/update")
+    @PreAuthorize("hasRole('ADMIN')")
     public Location updateLocation(@RequestParam int locationId, @RequestBody LocationModel locationModel) {
         Location locationUpdate = locationService.findById(locationId);
         locationUpdate.setLocationName(locationModel.getLocationName());
@@ -50,6 +53,7 @@ public class LocationController {
     }
 
     @PatchMapping("/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteLocation(@RequestParam int locationId) {
         boolean check = locationService.deleteLocation(locationId);
         if (check) {
