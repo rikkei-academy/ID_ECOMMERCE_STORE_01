@@ -149,7 +149,6 @@ public class UserController {
 
 
     @GetMapping("/forgotPassword")
-    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail, HttpServletRequest request) {
         if (userService.existsByEmail(userEmail)) {
             User users = userService.findByEmail(userEmail);
@@ -174,7 +173,6 @@ public class UserController {
     }
 
     @PatchMapping("/creatNewPass")
-    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> creatNewPass(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         PasswordResetToken passwordResetToken = forgotPassService.getLastTokenByUserId(userDetails.getUserId());
