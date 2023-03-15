@@ -1,6 +1,7 @@
 package ra.ecommerce_store_01.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sun.istack.NotNull;
 import lombok.Data;
 
 import javax.persistence.*;

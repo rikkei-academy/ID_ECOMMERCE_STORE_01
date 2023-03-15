@@ -15,7 +15,6 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JoinColumn(name = "ProductID")
-
     private int productId;
     @JoinColumn(name = "ProductName",nullable = false,unique = true)
     private String productName;

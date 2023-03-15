@@ -37,7 +37,6 @@ public class OrderDetailServiceImp implements OrderDetailService {
                 // Tạo order mới ở trạng thái chờ để lưu sản phẩm
                 User user = userRepository.findById(orderDetailRequest.getUserId()).get();
                 ordersNew.setCreateDate(new Date());
-
                 ordersNew.setUser(user);
                 orders = orderRepository.save(ordersNew);
             }

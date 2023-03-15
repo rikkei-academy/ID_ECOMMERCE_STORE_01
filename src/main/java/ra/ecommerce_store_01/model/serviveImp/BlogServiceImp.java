@@ -15,10 +15,7 @@ import ra.ecommerce_store_01.payload.request.BlogRequest;
 import ra.ecommerce_store_01.payload.respone.BlogResponse;
 import ra.ecommerce_store_01.payload.respone.CommentResponse;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class BlogServiceImp implements BlogService {
@@ -34,22 +31,7 @@ public class BlogServiceImp implements BlogService {
         Page<Blog> listBlog = blogRepository.findAll(pageable);
         List<BlogResponse> list = new ArrayList<>();
         for (Blog blog :listBlog) {
-            BlogResponse blogResponse = new BlogResponse();
-            blogResponse.setBlogId(blog.getBlogId());
-            blogResponse.setBlogContent(blog.getBlogContent());
-            blogResponse.setBlogStatus(blog.isBlogStatus());
-            blogResponse.setTag(blog.getTag());
-            blogResponse.setBlogName(blog.getBlogName());
-            blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
-            blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
-            for (Comment cmt :blog.getListComment()) {
-                CommentResponse cmtResponse = new CommentResponse();
-                cmtResponse.setCommentId(cmtResponse.getCommentId());
-                cmtResponse.setContent(cmt.getComment());
-                cmtResponse.setCreatedDate(cmt.getCreatedDate());
-                cmtResponse.setUserName(cmt.getUser().getUserName());
-                blogResponse.getListComment().add(cmtResponse);
-            }
+            BlogResponse blogResponse = changeData(blog);
             list.add(blogResponse);
         }
         Map<String,Object> listResponseBlog = new HashMap<>();
@@ -65,22 +47,7 @@ public class BlogServiceImp implements BlogService {
         List<Blog> listBlog = blogRepository.findAll();
         List<BlogResponse> list = new ArrayList<>();
         for (Blog blog :listBlog) {
-            BlogResponse blogResponse = new BlogResponse();
-            blogResponse.setBlogId(blog.getBlogId());
-            blogResponse.setBlogContent(blog.getBlogContent());
-            blogResponse.setBlogStatus(blog.isBlogStatus());
-            blogResponse.setTag(blog.getTag());
-            blogResponse.setBlogName(blog.getBlogName());
-            blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
-            blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
-            for (Comment cmt :blog.getListComment()) {
-                CommentResponse cmtResponse = new CommentResponse();
-                cmtResponse.setCommentId(cmtResponse.getCommentId());
-                cmtResponse.setContent(cmt.getComment());
-                cmtResponse.setCreatedDate(cmt.getCreatedDate());
-                cmtResponse.setUserName(cmt.getUser().getUserName());
-                blogResponse.getListComment().add(cmtResponse);
-            }
+            BlogResponse blogResponse = changeData(blog);
             list.add(blogResponse);
         }
         return list;
@@ -90,23 +57,7 @@ public class BlogServiceImp implements BlogService {
     public BlogResponse findById(int id) {
 
         Blog blog = blogRepository.findById(id).get();
-        BlogResponse blogResponse = new BlogResponse();
-        blogResponse.setBlogId(blog.getBlogId());
-        blogResponse.setBlogContent(blog.getBlogContent());
-        blogResponse.setBlogStatus(blog.isBlogStatus());
-        blogResponse.setTag(blog.getTag());
-        blogResponse.setBlogName(blog.getBlogName());
-        blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
-        blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
-        for (Comment cmt :blog.getListComment()) {
-            CommentResponse cmtResponse = new CommentResponse();
-            cmtResponse.setCommentId(cmtResponse.getCommentId());
-            cmtResponse.setContent(cmt.getComment());
-            cmtResponse.setCreatedDate(cmt.getCreatedDate());
-            cmtResponse.setUserName(cmt.getUser().getUserName());
-            blogResponse.getListComment().add(cmtResponse);
-        }
-        return blogResponse;
+        return changeData(blog);
     }
 
     @Override
@@ -116,7 +67,23 @@ public class BlogServiceImp implements BlogService {
         blog.setBlogName(blogRequest.getBlogName());
         blog.setBlogContent(blogRequest.getBlogContent());
         blog.setTag(blogRequest.getTag());
-        blog.setCreatedDate(blogRequest.getCreateDate());
+        blog.setCreatedDate(new Date());
+        blog.setBlogStatus(blogRequest.isBlogStatus());
+        blog.setBlogCatalog(blogCatalogRepository.findById(blogRequest.getBlogCatalogId()).get());
+        try {
+            blogRepository.save(blog);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    @Override
+    public boolean update(BlogRequest blogRequest) {
+        Blog blog = blogRepository.findById(blogRequest.getBlogId()).get();
+        blog.setBlogName(blogRequest.getBlogName());
+        blog.setBlogContent(blogRequest.getBlogContent());
+        blog.setTag(blogRequest.getTag());
         blog.setBlogStatus(blogRequest.isBlogStatus());
         blog.setBlogCatalog(blogCatalogRepository.findById(blogRequest.getBlogCatalogId()).get());
         try {
@@ -140,29 +107,19 @@ public class BlogServiceImp implements BlogService {
     }
 
     @Override
-    public List<BlogResponse> searchByName(String name) {
-        List<Blog> listBlog = blogRepository.searchByBlogNameContainingIgnoreCase(name);
+    public Map<String, Object> searchByName(String name, Pageable pageable) {
+        Page<Blog> listBlog = blogRepository.searchByBlogNameContainingIgnoreCase(name,pageable);
         List<BlogResponse> list = new ArrayList<>();
         for (Blog blog :listBlog) {
-            BlogResponse blogResponse = new BlogResponse();
-            blogResponse.setBlogId(blog.getBlogId());
-            blogResponse.setBlogContent(blog.getBlogContent());
-            blogResponse.setBlogStatus(blog.isBlogStatus());
-            blogResponse.setTag(blog.getTag());
-            blogResponse.setBlogName(blog.getBlogName());
-            blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
-            blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
-            for (Comment cmt :blog.getListComment()) {
-                CommentResponse cmtResponse = new CommentResponse();
-                cmtResponse.setCommentId(cmtResponse.getCommentId());
-                cmtResponse.setContent(cmt.getComment());
-                cmtResponse.setCreatedDate(cmt.getCreatedDate());
-                cmtResponse.setUserName(cmt.getUser().getUserName());
-                blogResponse.getListComment().add(cmtResponse);
-            }
+            BlogResponse blogResponse = changeData(blog);
             list.add(blogResponse);
         }
-        return list;
+        Map<String,Object> listResponseBlog = new HashMap<>();
+        listResponseBlog.put("listBlog",list);
+        listResponseBlog.put("total",listBlog.getSize());
+        listResponseBlog.put("totalItems",listBlog.getTotalElements());
+        listResponseBlog.put("totalPage",listBlog.getTotalPages());
+        return listResponseBlog;
     }
 
     @Override
@@ -177,22 +134,7 @@ public class BlogServiceImp implements BlogService {
         Page<Blog> listBlog = blogRepository.findAll(pageable);
         List<BlogResponse> list = new ArrayList<>();
         for (Blog blog :listBlog) {
-            BlogResponse blogResponse = new BlogResponse();
-            blogResponse.setBlogId(blog.getBlogId());
-            blogResponse.setBlogContent(blog.getBlogContent());
-            blogResponse.setBlogStatus(blog.isBlogStatus());
-            blogResponse.setTag(blog.getTag());
-            blogResponse.setBlogName(blog.getBlogName());
-            blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
-            blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
-            for (Comment cmt :blog.getListComment()) {
-                CommentResponse cmtResponse = new CommentResponse();
-                cmtResponse.setCommentId(cmtResponse.getCommentId());
-                cmtResponse.setContent(cmt.getComment());
-                cmtResponse.setCreatedDate(cmt.getCreatedDate());
-                cmtResponse.setUserName(cmt.getUser().getUserName());
-                blogResponse.getListComment().add(cmtResponse);
-            }
+            BlogResponse blogResponse = changeData(blog);
             list.add(blogResponse);
         }
         Map<String,Object> listResponseBlog = new HashMap<>();
@@ -215,22 +157,7 @@ public class BlogServiceImp implements BlogService {
         Page<Blog> listBlog = blogRepository.findAll(pageable);
         List<BlogResponse> list = new ArrayList<>();
         for (Blog blog :listBlog) {
-            BlogResponse blogResponse = new BlogResponse();
-            blogResponse.setBlogId(blog.getBlogId());
-            blogResponse.setBlogContent(blog.getBlogContent());
-            blogResponse.setBlogStatus(blog.isBlogStatus());
-            blogResponse.setTag(blog.getTag());
-            blogResponse.setBlogName(blog.getBlogName());
-            blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
-            blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
-            for (Comment cmt :blog.getListComment()) {
-                CommentResponse cmtResponse = new CommentResponse();
-                cmtResponse.setCommentId(cmtResponse.getCommentId());
-                cmtResponse.setContent(cmt.getComment());
-                cmtResponse.setCreatedDate(cmt.getCreatedDate());
-                cmtResponse.setUserName(cmt.getUser().getUserName());
-                blogResponse.getListComment().add(cmtResponse);
-            }
+            BlogResponse blogResponse = changeData(blog);
             list.add(blogResponse);
         }
         Map<String,Object> listResponseBlog = new HashMap<>();
@@ -260,22 +187,7 @@ public class BlogServiceImp implements BlogService {
         Page<Blog> listBlog = blogRepository.findAll(pageable);
         List<BlogResponse> list = new ArrayList<>();
         for (Blog blog :listBlog) {
-            BlogResponse blogResponse = new BlogResponse();
-            blogResponse.setBlogId(blog.getBlogId());
-            blogResponse.setBlogContent(blog.getBlogContent());
-            blogResponse.setBlogStatus(blog.isBlogStatus());
-            blogResponse.setTag(blog.getTag());
-            blogResponse.setBlogName(blog.getBlogName());
-            blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
-            blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
-            for (Comment cmt :blog.getListComment()) {
-                CommentResponse cmtResponse = new CommentResponse();
-                cmtResponse.setCommentId(cmtResponse.getCommentId());
-                cmtResponse.setContent(cmt.getComment());
-                cmtResponse.setCreatedDate(cmt.getCreatedDate());
-                cmtResponse.setUserName(cmt.getUser().getUserName());
-                blogResponse.getListComment().add(cmtResponse);
-            }
+            BlogResponse blogResponse = changeData(blog);
             list.add(blogResponse);
         }
         Map<String,Object> listResponseBlog = new HashMap<>();
@@ -287,59 +199,59 @@ public class BlogServiceImp implements BlogService {
     }
 
     @Override
-    public List<BlogResponse> findByStatus(boolean status) {
-        List<Blog> listBlog = blogRepository.findByBlogStatus(status);
+    public Map<String, Object> findByStatus(boolean status,Pageable pageable) {
+        Page<Blog> listBlog = blogRepository.findByBlogStatus(status,pageable);
         List<BlogResponse> list = new ArrayList<>();
         for (Blog blog :listBlog) {
-            BlogResponse blogResponse = new BlogResponse();
-            blogResponse.setBlogId(blog.getBlogId());
-            blogResponse.setBlogContent(blog.getBlogContent());
-            blogResponse.setBlogStatus(blog.isBlogStatus());
-            blogResponse.setTag(blog.getTag());
-            blogResponse.setBlogName(blog.getBlogName());
-            blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
-            blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
-            for (Comment cmt :blog.getListComment()) {
-                CommentResponse cmtResponse = new CommentResponse();
-                cmtResponse.setCommentId(cmtResponse.getCommentId());
-                cmtResponse.setContent(cmt.getComment());
-                cmtResponse.setCreatedDate(cmt.getCreatedDate());
-                cmtResponse.setUserName(cmt.getUser().getUserName());
-                blogResponse.getListComment().add(cmtResponse);
-            }
+            BlogResponse blogResponse = changeData(blog);
             list.add(blogResponse);
         }
-        return list;
+        Map<String,Object> listResponseBlog = new HashMap<>();
+        listResponseBlog.put("listBlog",list);
+        listResponseBlog.put("total",listBlog.getSize());
+        listResponseBlog.put("totalItems",listBlog.getTotalElements());
+        listResponseBlog.put("totalPage",listBlog.getTotalPages());
+        return listResponseBlog;
     }
 
     @Override
-    public List<BlogResponse> findByCatalogId(int iD) {
-        List<Blog> listBlog = blogRepository.findByBlogCatalog_BlogCatalogId(iD);
+    public Map<String, Object> findByCatalogId(int iD,Pageable pageable) {
+        Page<Blog> listBlog = blogRepository.findByBlogCatalog_BlogCatalogId(iD,pageable);
         List<BlogResponse> list = new ArrayList<>();
         for (Blog blog :listBlog) {
-            BlogResponse blogResponse = new BlogResponse();
-            blogResponse.setBlogId(blog.getBlogId());
-            blogResponse.setBlogContent(blog.getBlogContent());
-            blogResponse.setBlogStatus(blog.isBlogStatus());
-            blogResponse.setTag(blog.getTag());
-            blogResponse.setBlogName(blog.getBlogName());
-            blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
-            blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
-            for (Comment cmt :blog.getListComment()) {
-                CommentResponse cmtResponse = new CommentResponse();
-                cmtResponse.setCommentId(cmtResponse.getCommentId());
-                cmtResponse.setContent(cmt.getComment());
-                cmtResponse.setCreatedDate(cmt.getCreatedDate());
-                cmtResponse.setUserName(cmt.getUser().getUserName());
-                blogResponse.getListComment().add(cmtResponse);
-            }
+            BlogResponse blogResponse = changeData(blog);
             list.add(blogResponse);
         }
-        return list;
+        Map<String,Object> listResponseBlog = new HashMap<>();
+        listResponseBlog.put("listBlog",list);
+        listResponseBlog.put("total",listBlog.getSize());
+        listResponseBlog.put("totalItems",listBlog.getTotalElements());
+        listResponseBlog.put("totalPage",listBlog.getTotalPages());
+        return listResponseBlog;
     }
 
     @Override
     public Blog getById(int blogId) {
         return blogRepository.findById(blogId).get();
+    }
+    private static BlogResponse changeData(Blog blog){
+        BlogResponse blogResponse = new BlogResponse();
+        blogResponse.setBlogId(blog.getBlogId());
+        blogResponse.setBlogContent(blog.getBlogContent());
+        blogResponse.setBlogStatus(blog.isBlogStatus());
+        blogResponse.setTag(blog.getTag());
+        blogResponse.setBlogName(blog.getBlogName());
+        blogResponse.setBlogCatalogName(blog.getBlogCatalog().getBlogCatalogName());
+        blogResponse.setBlogCatalogId(blog.getBlogCatalog().getBlogCatalogId());
+        blogResponse.setCreateDate(blog.getCreatedDate());
+        for (Comment cmt :blog.getListComment()) {
+            CommentResponse cmtResponse = new CommentResponse();
+            cmtResponse.setCommentId(cmtResponse.getCommentId());
+            cmtResponse.setContent(cmt.getComment());
+            cmtResponse.setCreatedDate(cmt.getCreatedDate());
+            cmtResponse.setUserName(cmt.getUser().getUserName());
+            blogResponse.getListComment().add(cmtResponse);
+        }
+        return blogResponse;
     }
 }

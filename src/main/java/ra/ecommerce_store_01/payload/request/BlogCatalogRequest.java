@@ -6,5 +6,5 @@ import lombok.Data;
 public class BlogCatalogRequest {
     private int blogCatId;
     private String blogCatName;
-    private boolean blogcatStatus = true;
+    private boolean blogcatStatus;
 }

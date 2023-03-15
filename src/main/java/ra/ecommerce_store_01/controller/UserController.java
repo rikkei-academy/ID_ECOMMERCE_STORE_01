@@ -253,7 +253,6 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateUser(@RequestBody UserUpdate userUpdate, @RequestParam int userId) {
         User user = userService.findByUserId(userId);
-        user.setUserName(userUpdate.getUserName());
         user.setFirstName(userUpdate.getFirstName());
         user.setLastName(userUpdate.getLastName());
         user.setEmail(userUpdate.getEmail());
